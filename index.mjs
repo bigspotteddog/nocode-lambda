@@ -24,7 +24,7 @@ export const handler = async (event, context) => {
   };
 
   const getPartition = function(path) {
-    return path.split("#").slice(0, 3).join("#");
+    return path.split("/").slice(0, 3).join("#");
   }
 
   const add = function() {
@@ -110,7 +110,7 @@ export const handler = async (event, context) => {
           }
         }
 
-        path = (event.rawPath.substring(1) + "#" + id);
+        path = (event.rawPath.substring(1) + "/" + id);
 
         body = {
           id: id,
