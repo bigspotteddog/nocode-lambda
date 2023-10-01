@@ -31,6 +31,20 @@ export const handler = async (event, context) => {
 
   };
 
+  const get = function(tableName, path) {
+    return dynamo.send(
+      new QueryCommand({
+        TableName: tableName,
+        KeyConditionExpression:
+          "PK = :pk AND begins_with (SK, :sk)",
+        ExpressionAttributeValues: {
+          ":pk": getPartition(path),
+          ":sk": path
+        },
+      })
+    );
+  };
+
   const put = function(tableName, path, body) {
     return dynamo.send(
       new PutCommand({
@@ -63,17 +77,7 @@ export const handler = async (event, context) => {
         body = `Deleted item: ${path}`;
         break;
       case "GET /v1/{proxy+}":
-        body = await dynamo.send(
-          new QueryCommand({
-            TableName: tableName,
-            KeyConditionExpression:
-              "PK = :pk AND begins_with (SK, :sk)",
-            ExpressionAttributeValues: {
-              ":pk": getPartition(path),
-              ":sk": path
-            },
-          })
-        );
+        body = await get(tableName, path);
         body = body.Items;
         break;
       case "POST /v1/{proxy+}":
@@ -126,7 +130,7 @@ export const handler = async (event, context) => {
         };
 
         if (body.value.unique) {
-          tableValue.SK2 = body.value.unique;
+          
         }
 
         response = await put(tableName, path, tableValue);
