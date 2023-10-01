@@ -23,6 +23,10 @@ export const handler = async (event, context) => {
     "Content-Type": "application/json",
   };
 
+  const getPartition = function(path) {
+    return path.split("#").slice(0, 3).join("#");
+  }
+
   const add = function() {
 
   };
@@ -32,7 +36,7 @@ export const handler = async (event, context) => {
       new PutCommand({
         TableName: tableName,
         Item: {
-          PK: path.split("#").slice(0, 3).join("#"),
+          PK: getPartition(path),
           SK: path,
           ...body
         }
@@ -45,7 +49,7 @@ export const handler = async (event, context) => {
       new DeleteCommand({
         TableName: tableName,
         Key: {
-          PK: path.split("#").slice(0, 3).join("#"),
+          PK: getPartition(path),
           SK: path
         },
       })
@@ -65,16 +69,15 @@ export const handler = async (event, context) => {
             KeyConditionExpression:
               "PK = :pk AND begins_with (SK, :sk)",
             ExpressionAttributeValues: {
-              ":pk": path.split("#").slice(0, 3).join("#"),
+              ":pk": getPartition(path),
               ":sk": path
             },
           })
         );
-        console.log(JSON.stringify(body, null, 2));
         body = body.Items;
         break;
       case "POST /v1/{proxy+}":
-        console.log(path.split("#").slice(0, 3).join("#"));
+        console.log(getPartition(path));
         console.log(path + "#" + "counter");
 
         let id;
@@ -83,7 +86,7 @@ export const handler = async (event, context) => {
             new UpdateCommand({
               TableName: tableName,
               Key: {
-                PK: path.split("#").slice(0, 3).join("#"),
+                PK: getPartition(path),
                 SK: path + "#" + "counter"
               },
               UpdateExpression: "SET #Increment = #Increment + :incr",
@@ -111,14 +114,13 @@ export const handler = async (event, context) => {
 
         body = {
           id: id,
-          partition: path.split("#").slice(0, 3).join("/"),
           path: path,
           value: JSON.parse(event.body)
         };
 
         response = await put(tableName, path, {
           id: body.id,
-          PK: body.partition,
+          PK: getPartition(body.path),
           SK: body.path,
           value: body.value
         });
@@ -139,6 +141,7 @@ export const handler = async (event, context) => {
     body = err.message;
   } finally {
     body = JSON.stringify(body);
+    console.log(body);
   }
 
   return {
