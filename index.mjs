@@ -24,7 +24,7 @@ export const handler = async (event, context) => {
   };
 
   const add = function() {
-    
+
   };
 
   const put = function(body) {
@@ -52,39 +52,6 @@ export const handler = async (event, context) => {
     );
   };
 
-  const nextId = async function(path) {
-    let id;
-    try {
-      const response = await dynamo.send(
-        new UpdateCommand({
-          TableName: tableName,
-          Key: {
-            PK: path.split("#").slice(0, 3).join("#"),
-            SK: path + "#" + "counter"
-          },
-          UpdateExpression: "SET #Increment = #Increment + :incr",
-          ExpressionAttributeNames: {
-            "#Increment": "Increment"
-          },
-          ExpressionAttributeValues: {
-            ":incr": 1
-          },
-          ReturnValues: "UPDATED_NEW",
-        })
-      );
-      id = response.Attributes && response.Attributes.Increment ? response.Attributes.Increment : 0;
-    } catch (err) {
-      if (err.__type === "com.amazon.coral.validate#ValidationException") {
-        id = 10004321;
-        response = await put({
-          SK: path + "#" + "counter",
-          Increment: id
-        });
-      }
-    }
-    return id;
-  };
-
   try {
     switch (event.routeKey) {
       case "DELETE /v1/{proxy+}":
@@ -109,8 +76,37 @@ export const handler = async (event, context) => {
       case "POST /v1/{proxy+}":
         console.log(path.split("#").slice(0, 3).join("#"));
         console.log(path + "#" + "counter");
-        
-        const id = nextId(path);
+
+        let id;
+        try {
+          const response = await dynamo.send(
+            new UpdateCommand({
+              TableName: tableName,
+              Key: {
+                PK: path.split("#").slice(0, 3).join("#"),
+                SK: path + "#" + "counter"
+              },
+              UpdateExpression: "SET #Increment = #Increment + :incr",
+              ExpressionAttributeNames: {
+                "#Increment": "Increment"
+              },
+              ExpressionAttributeValues: {
+                ":incr": 1
+              },
+              ReturnValues: "UPDATED_NEW",
+            })    
+          );
+          id = response.Attributes && response.Attributes.Increment ? response.Attributes.Increment : 0;
+        } catch (err) {
+          if (err.__type === "com.amazon.coral.validate#ValidationException") {
+            id = 10004321;
+            response = await put({
+              SK: path + "#" + "counter",
+              Increment: id
+            });
+          }
+        }
+
         path = (event.rawPath.substring(1) + "#" + id).replaceAll("/", "#");
 
         body = {
