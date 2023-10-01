@@ -155,7 +155,7 @@ export const handler = async (event, context) => {
         console.log(response);
         break;
       case "PUT /v1/{proxy+}":
-        body = event.body;
+        body = JSON.parse(event.body);
         response = await put(tableName, path, body);
         console.log(response);
         break;
