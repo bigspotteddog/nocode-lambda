@@ -27,7 +27,7 @@ export const handler = async (event, context) => {
 
   };
 
-  const put = function(body) {
+  const put = function(tableName, path, body) {
     return dynamo.send(
       new PutCommand({
         TableName: tableName,
@@ -100,7 +100,7 @@ export const handler = async (event, context) => {
         } catch (err) {
           if (err.__type === "com.amazon.coral.validate#ValidationException") {
             id = 10004321;
-            response = await put({
+            response = await put(tableName, path, {
               SK: path + "#" + "counter",
               Increment: id
             });
@@ -116,7 +116,7 @@ export const handler = async (event, context) => {
           value: JSON.parse(event.body)
         };
 
-        response = await put({
+        response = await put(tableName, path, {
           id: body.id,
           PK: body.partition,
           SK: body.path,
@@ -126,7 +126,8 @@ export const handler = async (event, context) => {
         console.log(response);
         break;
       case "PUT /v1/{proxy+}":
-        response = await put(JSON.parse(event.body));
+        body = event.body;
+        response = await put(tableName, path, body);
         console.log(response);
         break;
       default:
