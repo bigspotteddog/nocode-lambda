@@ -148,6 +148,7 @@ export const handler = async (event, context) => {
           response = await checkUnique(tableName, body.value.unique);
           console.log("unique");
           console.log(response);
+          tableValue.SK2 = body.value.unique;
         }
 
         response = await put(tableName, path, tableValue);
