@@ -118,12 +118,18 @@ export const handler = async (event, context) => {
           value: JSON.parse(event.body)
         };
 
-        response = await put(tableName, path, {
+        const tableValue = {
           id: body.id,
           PK: getPartition(body.path),
           SK: body.path.replaceAll("/", "#"),
           value: body.value
-        });
+        };
+
+        if (body.value.unique) {
+          tableValue.SK2 = body.value.unique;
+        }
+
+        response = await put(tableName, path, tableValue);
 
         console.log(response);
         break;
