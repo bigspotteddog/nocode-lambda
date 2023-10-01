@@ -151,6 +151,7 @@ export const handler = async (event, context) => {
           if (response.Count > 0) {
             body = `Unique constraint violation: ${body.value.unique}`
             statusCode = 400;
+            break;
           }
           tableValue.SK2 = body.value.unique;
         }
