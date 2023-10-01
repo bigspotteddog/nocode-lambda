@@ -45,6 +45,21 @@ export const handler = async (event, context) => {
     );
   };
 
+  const checkUnique = function(tableName, path) {
+    return dynamo.send(
+      new QueryCommand({
+        TableName: tableName,
+        IndexName: "PK-SK2-index",
+        KeyConditionExpression:
+          "PK = :pk AND SK2 = :sk2",
+        ExpressionAttributeValues: {
+          ":pk": getPartition(path),
+          ":sk2": path
+        },
+      })
+    );
+  };
+
   const put = function(tableName, path, body) {
     return dynamo.send(
       new PutCommand({
@@ -130,7 +145,9 @@ export const handler = async (event, context) => {
         };
 
         if (body.value.unique) {
-          
+          response = await checkUnique(tableName, body.value.unique);
+          console.log("unique");
+          console.log(response);
         }
 
         response = await put(tableName, path, tableValue);
