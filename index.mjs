@@ -110,18 +110,18 @@ export const handler = async (event, context) => {
           }
         }
 
-        path = (event.rawPath.substring(1) + "#" + id).replaceAll("/", "#");
+        path = (event.rawPath.substring(1) + "#" + id);
 
         body = {
           id: id,
           path: path,
-          value: JSON.parse(event.body)
+          value: event.body
         };
 
         response = await put(tableName, path, {
           id: body.id,
           PK: getPartition(body.path),
-          SK: body.path,
+          SK: body.path.replaceAll("/", "#"),
           value: body.value
         });
 
