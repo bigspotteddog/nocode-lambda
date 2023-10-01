@@ -45,7 +45,7 @@ export const handler = async (event, context) => {
     );
   };
 
-  const checkUnique = function(tableName, path) {
+  const checkUnique = function(tableName, path, unique) {
     return dynamo.send(
       new QueryCommand({
         TableName: tableName,
@@ -54,7 +54,7 @@ export const handler = async (event, context) => {
           "PK = :pk AND SK2 = :sk2",
         ExpressionAttributeValues: {
           ":pk": getPartition(path),
-          ":sk2": path
+          ":sk2": unique
         },
       })
     );
@@ -145,7 +145,7 @@ export const handler = async (event, context) => {
         };
 
         if (body.value.unique) {
-          response = await checkUnique(tableName, body.value.unique);
+          response = await checkUnique(tableName, path, body.value.unique);
           console.log("unique");
           console.log(response);
           tableValue.SK2 = body.value.unique;
