@@ -148,6 +148,10 @@ export const handler = async (event, context) => {
           response = await checkUnique(tableName, path, body.value.unique);
           console.log("unique");
           console.log(response);
+          if (response.Count > 0) {
+            body = `Unique constraint violation: ${body.value.unique}`
+            statusCode = 400;
+          }
           tableValue.SK2 = body.value.unique;
         }
 
