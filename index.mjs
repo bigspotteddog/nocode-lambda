@@ -115,7 +115,7 @@ export const handler = async (event, context) => {
         body = {
           id: id,
           path: path,
-          value: event.body
+          value: JSON.parse(event.body)
         };
 
         response = await put(tableName, path, {
