@@ -81,8 +81,8 @@ export const handler = async (event, context) => {
     );
   };
 
-  const nextId = function(tableName, path) {
-    const response = dynamo.send(
+  const nextId = async function(tableName, path) {
+    const response = await dynamo.send(
       new UpdateCommand({
         TableName: tableName,
         Key: {
@@ -105,7 +105,7 @@ export const handler = async (event, context) => {
   try {
     switch (event.routeKey) {
       case "DELETE /v1/{proxy+}":
-        await del(tableName, path); 
+        await del(tableName, path);
         body = `Deleted item: ${path}`;
         break;
       case "GET /v1/{proxy+}":
