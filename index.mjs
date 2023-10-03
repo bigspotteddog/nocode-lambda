@@ -69,6 +69,8 @@ const doDelete = async function(event, context) {
   return getResponse(`Deleted item: ${event.rawPath}`);
 }
 
+// This should go in another file that is imported into this.
+
 const client = new DynamoDBClient({});
 const dynamo = DynamoDBDocumentClient.from(client);
 
