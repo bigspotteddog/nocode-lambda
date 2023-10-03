@@ -55,7 +55,8 @@ const doPost = async function(event, context) {
     SK2: eventBody.unique
   });
   console.log(response);
-  return getResponse({eventBody, ...id});
+
+  return getResponse(body);
 }
 
 const doPut = async function(event, context) {
