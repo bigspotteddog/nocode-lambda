@@ -42,17 +42,20 @@ export const handler = async (event, context) => {
   };
 
   const checkUnique = function (tableName, path, unique) {
+    const params = {
+      TableName: tableName,
+      IndexName: "PK-SK2-index",
+      KeyConditionExpression:
+        "PK = :pk AND SK2 = :sk2",
+      ExpressionAttributeValues: {
+        ":pk": getPartition(path),
+        ":sk2": unique
+      }
+    };
+    console.log(params);
+
     return dynamo.send(
-      new QueryCommand({
-        TableName: tableName,
-        IndexName: "PK-SK2-index",
-        KeyConditionExpression:
-          "PK = :pk AND SK2 = :sk2",
-        ExpressionAttributeValues: {
-          ":pk": getPartition(path),
-          ":sk2": unique
-        },
-      })
+      new QueryCommand(params)
     );
   };
 
