@@ -173,10 +173,11 @@ const nextId = async function(tableName, path) {
     console.log(err);
     if (err.__type === "com.amazon.coral.validate#ValidationException") {
       id = 10004321;
-      response = await put(tableName, path, {
+      const response = await put(tableName, path, {
         SK: getSortKey(path) + "#" + "counter",
         Increment: id
       });
+      console.log(response);
     }
   }
   return id;
