@@ -43,7 +43,7 @@ const doPost = async function(event, context) {
     }
   }
 
-  const id = await nextId(TABLE_NAME, path);
+  const id = await nextId(TABLE_NAME, event.rawPath);
   const path = (event.rawPath + "/" + id);
   const response = await put(TABLE_NAME, path, {
     id: id,
@@ -58,7 +58,7 @@ const doPost = async function(event, context) {
 
 const doPut = async function(event, context) {
   const body = JSON.parse(event.body);
-  const response = await put(TABLE_NAME, path, body);
+  const response = await put(TABLE_NAME, event.rawPath, body);
   console.log(response);
   return getResponse(body);
 }
