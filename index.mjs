@@ -130,10 +130,10 @@ export const handler = async (event, context) => {
         console.log(path + "#" + "counter");
 
         const eventBody = JSON.parse(event.body);
-        if (eventBody.value.unique) {
-          response = await checkUnique(tableName, path, eventBody.value.unique);
+        if (eventBody.unique) {
+          response = await checkUnique(tableName, path, eventBody.unique);
           if (response.Count > 0) {
-            body = `Unique constraint violation: ${eventBody.value.unique}`
+            body = `Unique constraint violation: ${eventBody.unique}`
             statusCode = 400;
             break;
           }
@@ -146,7 +146,7 @@ export const handler = async (event, context) => {
         body = {
           id: id,
           path: path,
-          value: JSON.parse(event.body)
+          value: eventBody
         };
 
         const tableValue = {
