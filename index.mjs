@@ -46,7 +46,7 @@ const doPost = async function(event, context) {
   const id = await nextId(TABLE_NAME, path);
   const path = (event.rawPath + "/" + id);
   const response = await put(TABLE_NAME, path, {
-    id: body.id,
+    id: id,
     PK: getPartitionKey(path),
     SK: getSortKey(path),
     value: eventBody,
