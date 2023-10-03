@@ -129,10 +129,11 @@ export const handler = async (event, context) => {
         console.log(getPartition(path));
         console.log(path + "#" + "counter");
 
-        if (body.value.unique) {
-          response = await checkUnique(tableName, path, body.value.unique);
+        const eventBody = JSON.parse(event.body);
+        if (eventBody.value.unique) {
+          response = await checkUnique(tableName, path, eventBody.value.unique);
           if (response.Count > 0) {
-            body = `Unique constraint violation: ${body.value.unique}`
+            body = `Unique constraint violation: ${eventBody.value.unique}`
             statusCode = 400;
             break;
           }
