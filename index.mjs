@@ -44,7 +44,7 @@ const doPost = async function(event, context) {
   }
 
   const id = await nextId(TABLE_NAME, event.rawPath);
-  const path = (event.rawPath + "/" + id);
+  const path = event.rawPath + "/" + id;
   const body = { eventBody, ...id }
 
   const response = await put(TABLE_NAME, path, {
@@ -82,7 +82,8 @@ const HEADERS = {
 };
 
 const getResponse = function(body, statusCode = 200, headers = HEADERS) {
-  return (JSON.stringify(body), statusCode, headers);
+  body = JSON.stringify(body);
+  return {body, statusCode, headers};
 }
 
 const getPartitionKey = function(path) {
