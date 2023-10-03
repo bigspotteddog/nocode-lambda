@@ -7,6 +7,26 @@ import {
   QueryCommand,
 } from "@aws-sdk/lib-dynamodb";
 
+export const handler = async (event, context) => {
+  try {
+    switch (event.routeKey) {
+      case "DELETE /v1/{proxy+}":
+        return doDelete(event, context);
+      case "GET /v1/{proxy+}":
+        return doGet(event, context);
+      case "POST /v1/{proxy+}":
+        return doPost(event, context);
+      case "PUT /v1/{proxy+}":
+        return doPut(event, context);
+      default:
+        throw new Error(`Unsupported route: "${event.routeKey}"`);
+    }
+  } catch (err) {
+    console.log(err);
+    return getResponse(err.message, 400)
+  }
+};
+
 const client = new DynamoDBClient({});
 const dynamo = DynamoDBDocumentClient.from(client);
 
@@ -162,23 +182,3 @@ const doPut = async function(event, context) {
   console.log(response);
   return getResponse(body);
 }
-
-export const handler = async (event, context) => {
-  try {
-    switch (event.routeKey) {
-      case "DELETE /v1/{proxy+}":
-        return doDelete(event, context);
-      case "GET /v1/{proxy+}":
-        return doGet(event, context);
-      case "POST /v1/{proxy+}":
-        return doPost(event, context);
-      case "PUT /v1/{proxy+}":
-        return doPut(event, context);
-      default:
-        throw new Error(`Unsupported route: "${event.routeKey}"`);
-    }
-  } catch (err) {
-    console.log(err);
-    return getResponse(err.message, 400)
-  }
-};
