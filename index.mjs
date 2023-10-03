@@ -120,6 +120,7 @@ export const handler = async (event, context) => {
         try {
           id = nextId(tableName, path);
         } catch (err) {
+          console.log(err);
           if (err.__type === "com.amazon.coral.validate#ValidationException") {
             id = 10004321;
             response = await put(tableName, path, {
