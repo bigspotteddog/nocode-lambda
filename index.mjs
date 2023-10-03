@@ -39,8 +39,12 @@ const getResponse = function(body, statusCode = 200, headers = HEADERS) {
   return (JSON.stringify(body), statusCode, headers);
 }
 
-const getPartition = function(path) {
-  return path.split("/").slice(0, 3).join("#");
+const getPartitionKey = function(path) {
+  return path.substring(1).split("/").slice(0, 3).join("#");
+}
+
+const getSortKey = function(path) {
+  return path.substring(1).replaceAll("/", "#");
 }
 
 const get = function(tableName, path) {
@@ -50,8 +54,8 @@ const get = function(tableName, path) {
       KeyConditionExpression:
         "PK = :pk AND begins_with (SK, :sk)",
       ExpressionAttributeValues: {
-        ":pk": getPartition(path),
-        ":sk": path
+        ":pk": getPartitionKey(path),
+        ":sk": getSortKey(path)
       },
     })
   );
@@ -64,7 +68,7 @@ const checkUnique = function(tableName, path, unique) {
     KeyConditionExpression:
       "PK = :pk AND SK2 = :sk2",
     ExpressionAttributeValues: {
-      ":pk": getPartition(path),
+      ":pk": getPartitionKey(path),
       ":sk2": unique
     }
   };
@@ -80,8 +84,8 @@ const put = function(tableName, path, body) {
     new PutCommand({
       TableName: tableName,
       Item: {
-        PK: getPartition(path),
-        SK: path,
+        PK: getPartitionKey(path),
+        SK: getSortKey(path),
         ...body
       }
     })
@@ -93,8 +97,8 @@ const del = function(tableName, path) {
     new DeleteCommand({
       TableName: tableName,
       Key: {
-        PK: getPartition(path),
-        SK: path
+        PK: getPartitionKey(path),
+        SK: getSortKey(path)
       },
     })
   );
@@ -107,8 +111,8 @@ const nextId = async function(tableName, path) {
       new UpdateCommand({
         TableName: tableName,
         Key: {
-          PK: getPartition(path),
-          SK: path + "#" + "counter"
+          PK: getPartitionKey(path),
+          SK: getSortKey(path) + "#" + "counter"
         },
         UpdateExpression: "SET #Increment = #Increment + :incr",
         ExpressionAttributeNames: {
@@ -126,7 +130,7 @@ const nextId = async function(tableName, path) {
     if (err.__type === "com.amazon.coral.validate#ValidationException") {
       id = 10004321;
       response = await put(tableName, path, {
-        SK: path + "#" + "counter",
+        SK: getSortKey(path) + "#" + "counter",
         Increment: id
       });
     }
@@ -137,7 +141,7 @@ const nextId = async function(tableName, path) {
 const doDelete = async function(event, context) {
   const response = await del(TABLE_NAME, event.rawPath);
   console.log(response);
-  return getResponse(`Deleted item: ${path}`);
+  return getResponse(`Deleted item: ${event.rawPath}`);
 }
 
 const doGet = async function(event, context) {
@@ -150,27 +154,20 @@ const doGet = async function(event, context) {
 const doPost = async function(event, context) {
   const eventBody = JSON.parse(event.body);
   if (eventBody.unique) {
-    response = await checkUnique(TABLE_NAME, path, eventBody.unique);
+    response = await checkUnique(TABLE_NAME, event.rawPath, eventBody.unique);
     if (response.Count > 0) {
       return getResponse(`Unique constraint violation: ${eventBody.unique}`, 400);
     }
   }
 
   const id = await nextId(TABLE_NAME, path);
-  const path = (event.rawPath.substring(1) + "/" + id);
-
-  const body = {
-    id: id,
-    path: path,
-    value: eventBody
-  };
-
+  const path = (event.rawPath + "/" + id);
   const response = await put(TABLE_NAME, path, {
     id: body.id,
-    PK: getPartition(body.path),
-    SK: body.path.replaceAll("/", "#"),
-    value: body.value,
-    SK2: body.value.unique
+    PK: getPartitionKey(path),
+    SK: getSortKey(path),
+    value: eventBody,
+    SK2: eventBody.unique
   });
   console.log(response);
   return getResponse(body);
