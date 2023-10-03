@@ -27,10 +27,6 @@ export const handler = async (event, context) => {
     return path.split("/").slice(0, 3).join("#");
   }
 
-  const add = function() {
-
-  };
-
   const get = function(tableName, path) {
     return dynamo.send(
       new QueryCommand({
@@ -72,7 +68,7 @@ export const handler = async (event, context) => {
       })
     );
   };
-  
+
   const del = function(tableName, path) {
     return dynamo.send(
       new DeleteCommand({
@@ -84,6 +80,27 @@ export const handler = async (event, context) => {
       })
     );
   };
+
+  const nextId = function() {
+    const response = dynamo.send(
+      new UpdateCommand({
+        TableName: tableName,
+        Key: {
+          PK: getPartition(path),
+          SK: path + "#" + "counter"
+        },
+        UpdateExpression: "SET #Increment = #Increment + :incr",
+        ExpressionAttributeNames: {
+          "#Increment": "Increment"
+        },
+        ExpressionAttributeValues: {
+          ":incr": 1
+        },
+        ReturnValues: "UPDATED_NEW",
+      })
+    );
+    return response.Attributes && response.Attributes.Increment ? response.Attributes.Increment : 0;
+  }
 
   try {
     switch (event.routeKey) {
@@ -101,24 +118,7 @@ export const handler = async (event, context) => {
 
         let id;
         try {
-          const response = await dynamo.send(
-            new UpdateCommand({
-              TableName: tableName,
-              Key: {
-                PK: getPartition(path),
-                SK: path + "#" + "counter"
-              },
-              UpdateExpression: "SET #Increment = #Increment + :incr",
-              ExpressionAttributeNames: {
-                "#Increment": "Increment"
-              },
-              ExpressionAttributeValues: {
-                ":incr": 1
-              },
-              ReturnValues: "UPDATED_NEW",
-            })    
-          );
-          id = response.Attributes && response.Attributes.Increment ? response.Attributes.Increment : 0;
+          id = nextId(tableName, path);
         } catch (err) {
           if (err.__type === "com.amazon.coral.validate#ValidationException") {
             id = 10004321;
