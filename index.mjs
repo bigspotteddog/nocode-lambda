@@ -27,6 +27,48 @@ export const handler = async (event, context) => {
   }
 };
 
+const doGet = async function(event, context) {
+  const response = await get(TABLE_NAME, event.rawPath);
+  console.log(response);
+  const items = response.Items;
+  return getResponse(items);
+}
+
+const doPost = async function(event, context) {
+  const eventBody = JSON.parse(event.body);
+  if (eventBody.unique) {
+    response = await checkUnique(TABLE_NAME, event.rawPath, eventBody.unique);
+    if (response.Count > 0) {
+      return getResponse(`Unique constraint violation: ${eventBody.unique}`, 400);
+    }
+  }
+
+  const id = await nextId(TABLE_NAME, path);
+  const path = (event.rawPath + "/" + id);
+  const response = await put(TABLE_NAME, path, {
+    id: body.id,
+    PK: getPartitionKey(path),
+    SK: getSortKey(path),
+    value: eventBody,
+    SK2: eventBody.unique
+  });
+  console.log(response);
+  return getResponse(body);
+}
+
+const doPut = async function(event, context) {
+  const body = JSON.parse(event.body);
+  const response = await put(TABLE_NAME, path, body);
+  console.log(response);
+  return getResponse(body);
+}
+
+const doDelete = async function(event, context) {
+  const response = await del(TABLE_NAME, event.rawPath);
+  console.log(response);
+  return getResponse(`Deleted item: ${event.rawPath}`);
+}
+
 const client = new DynamoDBClient({});
 const dynamo = DynamoDBDocumentClient.from(client);
 
@@ -136,46 +178,4 @@ const nextId = async function(tableName, path) {
     }
   }
   return id;
-}
-
-const doDelete = async function(event, context) {
-  const response = await del(TABLE_NAME, event.rawPath);
-  console.log(response);
-  return getResponse(`Deleted item: ${event.rawPath}`);
-}
-
-const doGet = async function(event, context) {
-  const response = await get(TABLE_NAME, event.rawPath);
-  console.log(response);
-  const items = response.Items;
-  return getResponse(items);
-}
-
-const doPost = async function(event, context) {
-  const eventBody = JSON.parse(event.body);
-  if (eventBody.unique) {
-    response = await checkUnique(TABLE_NAME, event.rawPath, eventBody.unique);
-    if (response.Count > 0) {
-      return getResponse(`Unique constraint violation: ${eventBody.unique}`, 400);
-    }
-  }
-
-  const id = await nextId(TABLE_NAME, path);
-  const path = (event.rawPath + "/" + id);
-  const response = await put(TABLE_NAME, path, {
-    id: body.id,
-    PK: getPartitionKey(path),
-    SK: getSortKey(path),
-    value: eventBody,
-    SK2: eventBody.unique
-  });
-  console.log(response);
-  return getResponse(body);
-}
-
-const doPut = async function(event, context) {
-  const body = JSON.parse(event.body);
-  const response = await put(TABLE_NAME, path, body);
-  console.log(response);
-  return getResponse(body);
 }
