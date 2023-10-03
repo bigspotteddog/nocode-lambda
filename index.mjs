@@ -23,11 +23,11 @@ export const handler = async (event, context) => {
     "Content-Type": "application/json",
   };
 
-  const getPartition = function(path) {
+  const getPartition = function (path) {
     return path.split("/").slice(0, 3).join("#");
   }
 
-  const get = function(tableName, path) {
+  const get = function (tableName, path) {
     return dynamo.send(
       new QueryCommand({
         TableName: tableName,
@@ -41,7 +41,7 @@ export const handler = async (event, context) => {
     );
   };
 
-  const checkUnique = function(tableName, path, unique) {
+  const checkUnique = function (tableName, path, unique) {
     return dynamo.send(
       new QueryCommand({
         TableName: tableName,
@@ -56,7 +56,7 @@ export const handler = async (event, context) => {
     );
   };
 
-  const put = function(tableName, path, body) {
+  const put = function (tableName, path, body) {
     return dynamo.send(
       new PutCommand({
         TableName: tableName,
@@ -69,7 +69,7 @@ export const handler = async (event, context) => {
     );
   };
 
-  const del = function(tableName, path) {
+  const del = function (tableName, path) {
     return dynamo.send(
       new DeleteCommand({
         TableName: tableName,
@@ -81,25 +81,38 @@ export const handler = async (event, context) => {
     );
   };
 
-  const nextId = async function(tableName, path) {
-    const response = await dynamo.send(
-      new UpdateCommand({
-        TableName: tableName,
-        Key: {
-          PK: getPartition(path),
-          SK: path + "#" + "counter"
-        },
-        UpdateExpression: "SET #Increment = #Increment + :incr",
-        ExpressionAttributeNames: {
-          "#Increment": "Increment"
-        },
-        ExpressionAttributeValues: {
-          ":incr": 1
-        },
-        ReturnValues: "UPDATED_NEW",
-      })
-    );
-    return response.Attributes && response.Attributes.Increment ? response.Attributes.Increment : 0;
+  const nextId = async function (tableName, path) {
+    let id = 0;
+    try {
+      const response = await dynamo.send(
+        new UpdateCommand({
+          TableName: tableName,
+          Key: {
+            PK: getPartition(path),
+            SK: path + "#" + "counter"
+          },
+          UpdateExpression: "SET #Increment = #Increment + :incr",
+          ExpressionAttributeNames: {
+            "#Increment": "Increment"
+          },
+          ExpressionAttributeValues: {
+            ":incr": 1
+          },
+          ReturnValues: "UPDATED_NEW",
+        })
+      );
+      return response.Attributes && response.Attributes.Increment ? response.Attributes.Increment : 0;
+    } catch (err) {
+      console.log(err);
+      if (err.__type === "com.amazon.coral.validate#ValidationException") {
+        id = 10004321;
+        response = await put(tableName, path, {
+          SK: path + "#" + "counter",
+          Increment: id
+        });
+      }
+    }
+    return id;
   }
 
   try {
@@ -116,19 +129,7 @@ export const handler = async (event, context) => {
         console.log(getPartition(path));
         console.log(path + "#" + "counter");
 
-        let id;
-        try {
-          id = nextId(tableName, path);
-        } catch (err) {
-          console.log(err);
-          if (err.__type === "com.amazon.coral.validate#ValidationException") {
-            id = 10004321;
-            response = await put(tableName, path, {
-              SK: path + "#" + "counter",
-              Increment: id
-            });
-          }
-        }
+        let id = await nextId(tableName, path);
 
         path = (event.rawPath.substring(1) + "/" + id);
 
