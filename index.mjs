@@ -37,7 +37,7 @@ const doGet = async function(event, context) {
 const doPost = async function(event, context) {
   const eventBody = JSON.parse(event.body);
   if (eventBody.unique) {
-    response = await checkUnique(TABLE_NAME, event.rawPath, eventBody.unique);
+    const response = await checkUnique(TABLE_NAME, event.rawPath, eventBody.unique);
     if (response.Count > 0) {
       return getResponse(`Unique constraint violation: ${eventBody.unique}`, 400);
     }
