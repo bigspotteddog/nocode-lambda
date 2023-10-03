@@ -81,7 +81,7 @@ export const handler = async (event, context) => {
     );
   };
 
-  const nextId = function() {
+  const nextId = function(tableName, path) {
     const response = dynamo.send(
       new UpdateCommand({
         TableName: tableName,
