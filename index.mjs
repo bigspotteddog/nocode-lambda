@@ -16,7 +16,7 @@ const HEADERS = {
 };
 
 const getResponse = function(body, statusCode = 200, headers = HEADERS) {
-  return (body, statusCode, headers);
+  return (JSON.stringify(body), statusCode, headers);
 }
 
 const getPartition = function(path) {
@@ -145,15 +145,13 @@ const doPost = async function(event, context) {
     value: eventBody
   };
 
-  const tableValue = {
+  const response = await put(TABLE_NAME, path, {
     id: body.id,
     PK: getPartition(body.path),
     SK: body.path.replaceAll("/", "#"),
     value: body.value,
     SK2: body.value.unique
-  };
-
-  const response = await put(TABLE_NAME, path, tableValue);
+  });
   console.log(response);
   return getResponse(body);
 }
