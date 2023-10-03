@@ -129,6 +129,15 @@ export const handler = async (event, context) => {
         console.log(getPartition(path));
         console.log(path + "#" + "counter");
 
+        if (body.value.unique) {
+          response = await checkUnique(tableName, path, body.value.unique);
+          if (response.Count > 0) {
+            body = `Unique constraint violation: ${body.value.unique}`
+            statusCode = 400;
+            break;
+          }
+        }
+
         let id = await nextId(tableName, path);
 
         path = (event.rawPath.substring(1) + "/" + id);
@@ -143,20 +152,9 @@ export const handler = async (event, context) => {
           id: body.id,
           PK: getPartition(body.path),
           SK: body.path.replaceAll("/", "#"),
-          value: body.value
+          value: body.value,
+          SK2: body.value.unique
         };
-
-        if (body.value.unique) {
-          response = await checkUnique(tableName, path, body.value.unique);
-          console.log("unique");
-          console.log(response);
-          if (response.Count > 0) {
-            body = `Unique constraint violation: ${body.value.unique}`
-            statusCode = 400;
-            break;
-          }
-          tableValue.SK2 = body.value.unique;
-        }
 
         response = await put(tableName, path, tableValue);
 
