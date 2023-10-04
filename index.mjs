@@ -168,6 +168,9 @@ const put = function (tableName, path, body) {
   let attributes = Object.keys(body);
   for (let i = 0; i < attributes.length; i++) {
     let attribute = attributes[i];
+    if (attribute === "PK" || attribute === "SK" || attribute === "Sk2") {
+      continue;
+    }
     params["UpdateExpression"] += prefix + "#" + attribute + " = :" + attribute;
     params["ExpressionAttributeValues"][":" + attribute] = body[attribute];
     params["ExpressionAttributeNames"]["#" + attribute] = attribute;
