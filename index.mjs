@@ -32,7 +32,11 @@ const doGet = async function(event, context) {
   console.log(response);
   const items = [];
   for (let i = 0; i < response.Items.length; i++) {
-    items.push(response.Items[i].value);
+    let item = response.Items[i];
+    if (item.SK.endWith("#counter")) {
+      continue;
+    }
+    items.push(item.value);
   }
   return getResponse(items);
 }
