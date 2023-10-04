@@ -36,7 +36,7 @@ const doGet = async function(event, context) {
     if (item.SK.endsWith("#counter")) {
       continue;
     }
-    items.push(item.value);
+    items.push(item);
   }
   return getResponse(items);
 }
