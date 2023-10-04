@@ -30,7 +30,10 @@ export const handler = async (event, context) => {
 const doGet = async function(event, context) {
   const response = await get(TABLE_NAME, event.rawPath);
   console.log(response);
-  const items = response.Items;
+  const items = [];
+  for (let i = 0; i < response.Items.length; i++) {
+    items.push(response.Items[i].value);
+  }
   return getResponse(items);
 }
 
