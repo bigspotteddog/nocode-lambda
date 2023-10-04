@@ -60,7 +60,7 @@ const doPost = async function(event, context) {
   const response = await put(TABLE_NAME, path, {
     PK: getPartitionKey(path),
     SK: getSortKey(path),
-    value: body,
+    ...body,
     SK2: eventBody.unique
   });
   console.log(response);
@@ -142,7 +142,7 @@ const put = function(tableName, path, body) {
       Item: {
         PK: getPartitionKey(path),
         SK: getSortKey(path),
-        value: body
+        ...body
       }
     })
   );
