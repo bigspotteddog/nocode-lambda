@@ -33,7 +33,7 @@ const doGet = async function(event, context) {
   const items = [];
   for (let i = 0; i < response.Items.length; i++) {
     let item = response.Items[i];
-    if (item.SK.endWith("#counter")) {
+    if (item.SK.endsWith("#counter")) {
       continue;
     }
     items.push(item.value);
