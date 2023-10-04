@@ -142,7 +142,7 @@ const put = function(tableName, path, body) {
       Item: {
         PK: getPartitionKey(path),
         SK: getSortKey(path),
-        ...body
+        value: body
       }
     })
   );
