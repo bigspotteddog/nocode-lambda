@@ -155,12 +155,10 @@ const put = function (tableName, path, body) {
   let attributes = Object.keys(body);
   for (let i = 0; i < attributes.length; i++) {
     let attribute = attributes[i];
-    if (attribute != idAttributeName) {
-      params["UpdateExpression"] += prefix + "#" + attribute + " = :" + attribute;
-      params["ExpressionAttributeValues"][":" + attribute] = item[attribute];
-      params["ExpressionAttributeNames"]["#" + attribute] = attribute;
-      prefix = ", ";
-    }
+    params["UpdateExpression"] += prefix + "#" + attribute + " = :" + attribute;
+    params["ExpressionAttributeValues"][":" + attribute] = item[attribute];
+    params["ExpressionAttributeNames"]["#" + attribute] = attribute;
+    prefix = ", ";
   }
 
   console.log(params);
