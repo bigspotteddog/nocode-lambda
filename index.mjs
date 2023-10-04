@@ -156,7 +156,7 @@ const put = function (tableName, path, body) {
   for (let i = 0; i < attributes.length; i++) {
     let attribute = attributes[i];
     params["UpdateExpression"] += prefix + "#" + attribute + " = :" + attribute;
-    params["ExpressionAttributeValues"][":" + attribute] = item[attribute];
+    params["ExpressionAttributeValues"][":" + attribute] = body[attribute];
     params["ExpressionAttributeNames"]["#" + attribute] = attribute;
     prefix = ", ";
   }
