@@ -36,6 +36,9 @@ const doGet = async function(event, context) {
     if (item.SK.endsWith("#counter")) {
       continue;
     }
+    delete item.PK;
+    delete item.SK;
+    delete item.SK2;
     items.push(item);
   }
   return getResponse(items);
