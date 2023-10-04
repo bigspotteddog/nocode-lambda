@@ -60,7 +60,7 @@ const doPost = async function (event, context) {
     ...eventBody
   };
 
-  const response = await put(TABLE_NAME, path, {
+  const response = await post(TABLE_NAME, path, {
     PK: getPartitionKey(path),
     SK: getSortKey(path),
     ...body,
@@ -135,6 +135,19 @@ const checkUnique = function (tableName, path, unique) {
 
   return dynamo.send(
     new QueryCommand(params)
+  );
+};
+
+const post = function(tableName, path, body) {
+  return dynamo.send(
+    new PutCommand({
+      TableName: tableName,
+      Item: {
+        PK: getPartitionKey(path),
+        SK: getSortKey(path),
+        ...body
+      }
+    })
   );
 };
 
