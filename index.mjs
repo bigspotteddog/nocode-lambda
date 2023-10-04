@@ -179,9 +179,12 @@ const put = function (tableName, path, body) {
 
   console.log(params);
 
-  return dynamo.send(
+  const response = dynamo.send(
     new UpdateCommand(params)
   );
+
+  console.log(response);
+  return response;
 };
 
 const del = function (tableName, path) {
