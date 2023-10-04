@@ -168,7 +168,7 @@ const put = function (tableName, path, body) {
   let attributes = Object.keys(body);
   for (let i = 0; i < attributes.length; i++) {
     let attribute = attributes[i];
-    if (attribute === "PK" || attribute === "SK" || attribute === "Sk2") {
+    if (attribute === "PK" || attribute === "SK" || attribute === "SK2") {
       continue;
     }
     params["UpdateExpression"] += prefix + "#" + attribute + " = :" + attribute;
@@ -221,7 +221,7 @@ const nextId = async function (tableName, path) {
     console.log(err);
     if (err.__type === "com.amazon.coral.validate#ValidationException") {
       id = 10004321;
-      const response = await put(tableName, path, {
+      const response = await post(tableName, path, {
         SK: getSortKey(path) + "#" + "counter",
         Increment: id
       });
