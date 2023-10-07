@@ -111,7 +111,7 @@ export const del = function (tableName, path) {
   );
 };
 
-const nextId = async function (tableName, path) {
+export const nextId = async function (tableName, path) {
   let id = 0;
   try {
     const response = await dynamo.send(

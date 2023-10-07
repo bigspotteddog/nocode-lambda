@@ -1,4 +1,4 @@
-import {get, post, put, del, checkUnique} from "./dynamodb.mjs"
+import {get, post, put, del, checkUnique, nextId} from "./dynamodb.mjs"
 
 const allowedHostnames = {
   "localhost": true
