@@ -40,7 +40,7 @@ export const doPost = async function (tableName, eventPath, eventBody) {
   const id = await nextId(tableName, eventPath);
   console.log("nextId: " + id);
   const path = eventPath + "/" + id;
-  body = {
+  const body = {
     id: id,
     ...eventBody
   };
@@ -79,7 +79,7 @@ export const doPut = async function (tableName, eventPath, eventBody) {
     }
   }
 
-  body = { ...body, updated: new Date().toISOString() };
+  const body = { ...eventBody, updated: new Date().toISOString() };
 
   if (eventBody.unique) {
     body = {...body, SK2: eventBody.unique}
