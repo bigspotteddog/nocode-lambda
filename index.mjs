@@ -179,7 +179,7 @@ const put = function (tableName, path, body) {
   let attributes = Object.keys(body);
   for (let i = 0; i < attributes.length; i++) {
     let attribute = attributes[i];
-    if (attribute === "PK" || attribute === "SK" || attribute === "SK2") {
+    if (attribute === "PK" || attribute === "SK") {
       continue;
     }
     params["UpdateExpression"] += prefix + "#" + attribute + " = :" + attribute;
