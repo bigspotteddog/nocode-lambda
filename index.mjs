@@ -95,7 +95,9 @@ const doPut = async function (event, context) {
   }
 
   let body = JSON.parse(event.body);
-  body = { ...body, SK2: eventBody.unique };
+  if (eventBody.unique) {
+    body = {...body, SK2: eventBody.unique}
+  }
   const response = await put(TABLE_NAME, event.rawPath, body);
   console.log(response);
   return getResponse(body);
