@@ -12,7 +12,6 @@ const dynamo = DynamoDBDocumentClient.from(client);
 
 export const doGet = async function (tableName, eventPath) {
   const response = await get(tableName, eventPath);
-  console.log(response);
   const items = [];
   for (let i = 0; i < response.Items.length; i++) {
     let item = response.Items[i];
@@ -30,8 +29,6 @@ export const doGet = async function (tableName, eventPath) {
 export const doPost = async function (tableName, eventPath, eventBody) {
   if (eventBody.unique) {
     const response = await checkUnique(tableName, eventPath, eventBody.unique);
-    console.log("unique");
-    console.log(response);
     if (response.Count > 0) {
       return getResponse(`Unique constraint violation: ${eventBody.unique}`, 400);
     }
@@ -56,14 +53,15 @@ export const doPost = async function (tableName, eventPath, eventBody) {
   };
 
   if (eventBody.unique) {
-    postBody = { ...postBody, SK2: eventBody.unique }
+    const response = post(tableName, eventPath, {
+      SK2: eventBody.unique
+    });
   }
 
   try {
     const response = await post(tableName, path, postBody);
-    console.log(response);
   } catch(err) {
-    console.log(err);
+    return getResponse("Unable to persist item.", 409);
   }
   return body;
 }
@@ -79,17 +77,19 @@ export const doPut = async function (tableName, eventPath, eventBody) {
   let body = { ...eventBody, updated: new Date().toISOString() };
 
   let putBody = { ...body };
+
   if (eventBody.unique) {
-    putBody = { ...putBody, SK2: eventBody.unique}
+    const response = post(tableName, eventPath, {
+      SK2: eventBody.unique
+    });
   }
+
   const response = await put(tableName, eventPath, putBody);
-  console.log(response);
   return body;
 }
 
 export const doDelete = async function (tableName, eventPath) {
   const response = await del(tableName, eventPath);
-  console.log(response);
   return true;
 }
 
@@ -126,8 +126,8 @@ const checkUnique = function (tableName, path, unique) {
       ":sk2": unique
     }
   };
+  console.log("check unique");
   console.log(params);
-
   return dynamo.send(
     new QueryCommand(params)
   );
@@ -172,13 +172,10 @@ const put = function (tableName, path, body) {
     prefix = ", ";
   }
 
-  console.log(params);
-
   const response = dynamo.send(
     new UpdateCommand(params)
   );
 
-  console.log(response);
   return response;
 };
 
@@ -195,10 +192,8 @@ const del = function (tableName, path) {
 };
 
 const nextId = async function (tableName, path) {
-  console.log("a");
   let id = 0;
   try {
-    console.log("b");
     const response = await dynamo.send(
       new UpdateCommand({
         TableName: tableName,
@@ -216,20 +211,15 @@ const nextId = async function (tableName, path) {
         ReturnValues: "UPDATED_NEW",
       })
     );
-    console.log("c");
     return response.Attributes && response.Attributes.Increment ? response.Attributes.Increment : 0;
   } catch (err) {
-    console.log("d");
-    console.log(err);
     if (err.__type === "com.amazon.coral.validate#ValidationException") {
       id = 10004321;
       const response = await post(tableName, path, {
         SK: getSortKey(path) + "#" + "counter",
         Increment: id
       });
-      console.log(response);
     }
   }
-  console.log("e");
   return id;
 }
