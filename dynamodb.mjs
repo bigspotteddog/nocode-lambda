@@ -30,13 +30,13 @@ export const doGet = async function (tableName, path) {
 export const doPost = async function (tableName, body) {
   const eventBody = body;
   if (eventBody.unique) {
-    const response = await checkUnique(TABLE_NAME, event.rawPath, eventBody.unique);
+    const response = await checkUnique(tableName, event.rawPath, eventBody.unique);
     if (response.Count > 0) {
       return getResponse(`Unique constraint violation: ${eventBody.unique}`, 400);
     }
   }
 
-  const id = await nextId(TABLE_NAME, event.rawPath);
+  const id = await nextId(tableName, event.rawPath);
   console.log("nextId: " + id);
   const path = event.rawPath + "/" + id;
   body = {
@@ -59,7 +59,7 @@ export const doPost = async function (tableName, body) {
   }
 
   try {
-    const response = await post(TABLE_NAME, path, body);
+    const response = await post(tableName, path, body);
     console.log(response);
   } catch(err) {
     console.log(err);
@@ -70,7 +70,7 @@ export const doPost = async function (tableName, body) {
 export const doPut = async function (tableName, path, body) {
   const eventBody = body;
   if (eventBody.unique) {
-    const response = await checkUnique(TABLE_NAME, path, eventBody.unique);
+    const response = await checkUnique(tableName, path, eventBody.unique);
     if (response.Count > 0) {
       return getResponse(`Unique constraint violation: ${eventBody.unique}`, 400);
     }
@@ -81,7 +81,7 @@ export const doPut = async function (tableName, path, body) {
   if (eventBody.unique) {
     body = {...body, SK2: eventBody.unique}
   }
-  const response = await put(TABLE_NAME, path, body);
+  const response = await put(tableName, path, body);
   console.log(response);
   return body;
 }
