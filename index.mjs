@@ -51,23 +51,23 @@ const getResponse = function (body, statusCode = 200, headers = HEADERS) {
   return { body, statusCode, headers };
 }
 
-const doGet = function (event, context) {
-  const items = dynamodb.doGet(TABLE_NAME, event.rawPath);
+const doGet = async function (event, context) {
+  const items = await dynamodb.doGet(TABLE_NAME, event.rawPath);
   return getResponse(items);
 }
 
-const doPost = function (event, context) {
-  const body = dynamodb.doPost(TABLE_NAME, event.rawPath, event.body);
+const doPost = async function (event, context) {
+  const body = await dynamodb.doPost(TABLE_NAME, event.rawPath, event.body);
   return getResponse(body);
 }
 
-const doPut = function (event, context) {
-  const body = dynamodb.doPut(TABLE_NAME, event.rawPath, event.body);
+const doPut = async function (event, context) {
+  const body = await dynamodb.doPut(TABLE_NAME, event.rawPath, event.body);
   return getResponse(body);
 }
 
-const doDelete = function (event, context) {
-  const response = dynamodb.del(TABLE_NAME, event.rawPath);
+const doDelete = async function (event, context) {
+  const response = await dynamodb.del(TABLE_NAME, event.rawPath);
   console.log(response);
   return getResponse({ "deleted": event.rawPath });
 }
