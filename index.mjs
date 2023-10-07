@@ -25,6 +25,7 @@ export const handler = async (event, context) => {
   try {
     switch (event.routeKey) {
       case "OPTIONS /v1{proxy+}":
+        console.log("options called");
         return getResponse("", 204, headers);
       case "DELETE /v1/{proxy+}":
         return doDelete(event, context);
