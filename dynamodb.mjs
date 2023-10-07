@@ -39,7 +39,7 @@ export const doPost = async function (tableName, eventPath, eventBody) {
   console.log("2");
   const id = await nextId(tableName, eventPath);
   console.log("nextId: " + id);
-  const path = path + "/" + id;
+  const path = eventPath + "/" + id;
   body = {
     id: id,
     ...eventBody
