@@ -1,4 +1,4 @@
-import {get, post, put, del, checkUnique, nextId} from "./dynamodb.mjs"
+import * as dynamodb from "./dynamodb.mjs"
 
 const allowedHostnames = {
   "localhost": true
@@ -20,8 +20,6 @@ export const handler = async (event, context) => {
   console.log(event);
   console.log(context);
   const url = new URL(event.headers.origin);
-  console.log("origin: " + url);
-  console.log("domain: " + url.hostname);
   const hostname = url.hostname;
   if (!allowedHostnames[hostname]) {
     return getResponse("Unauthorized", 401);
@@ -30,7 +28,6 @@ export const handler = async (event, context) => {
   try {
     switch (event.routeKey) {
       case "OPTIONS /v1/{proxy+}":
-        console.log("options called");
         return getResponse("", 204, CORS_HEADERS);
       case "DELETE /v1/{proxy+}":
         return doDelete(event, context);
@@ -54,85 +51,23 @@ const getResponse = function (body, statusCode = 200, headers = HEADERS) {
   return { body, statusCode, headers };
 }
 
-const doGet = async function (event, context) {
-  const response = await get(TABLE_NAME, event.rawPath);
-  console.log(response);
-  const items = [];
-  for (let i = 0; i < response.Items.length; i++) {
-    let item = response.Items[i];
-    if (item.SK.endsWith("#counter")) {
-      continue;
-    }
-    delete item.PK;
-    delete item.SK;
-    delete item.SK2;
-    items.push(item);
-  }
+const doGet = function (event, context) {
+  const items = dynamodb.doGet(TABLE_NAME, event.rawPath);
   return getResponse(items);
 }
 
-const doPost = async function (event, context) {
-  const eventBody = JSON.parse(event.body);
-  if (eventBody.unique) {
-    const response = await checkUnique(TABLE_NAME, event.rawPath, eventBody.unique);
-    if (response.Count > 0) {
-      return getResponse(`Unique constraint violation: ${eventBody.unique}`, 400);
-    }
-  }
-
-  const id = await nextId(TABLE_NAME, event.rawPath);
-  console.log("nextId: " + id);
-  const path = event.rawPath + "/" + id;
-  let body = {
-    id: id,
-    ...eventBody
-  };
-
-  console.log("post:");
-  console.log(body);
-
-  body = {
-    PK: getPartitionKey(path),
-    SK: getSortKey(path),
-    ...body,
-    created: new Date().toISOString()
-  }
-
-  if (eventBody.unique) {
-    body = {...body, SK2: eventBody.unique}
-  }
-
-  try {
-    const response = await post(TABLE_NAME, path, body);
-    console.log(response);
-  } catch(err) {
-    console.log(err);
-  }
+const doPost = function (event, context) {
+  const body = dynamodb.doPost(TABLE_NAME, event.body);
   return getResponse(body);
 }
 
-const doPut = async function (event, context) {
-  const eventBody = JSON.parse(event.body);
-  if (eventBody.unique) {
-    const response = await checkUnique(TABLE_NAME, event.rawPath, eventBody.unique);
-    if (response.Count > 0) {
-      return getResponse(`Unique constraint violation: ${eventBody.unique}`, 400);
-    }
-  }
-
-  let body = JSON.parse(event.body);
-  body = {...body, updated: new Date().toISOString()};
-
-  if (eventBody.unique) {
-    body = {...body, SK2: eventBody.unique}
-  }
-  const response = await put(TABLE_NAME, event.rawPath, body);
-  console.log(response);
+const doPut = function (event, context) {
+  const body = dynamodb.doPut(TABLE_NAME, event.rawPath, event.body);
   return getResponse(body);
 }
 
-const doDelete = async function (event, context) {
-  const response = await del(TABLE_NAME, event.rawPath);
+const doDelete = function (event, context) {
+  const response = dynamodb.del(TABLE_NAME, event.rawPath);
   console.log(response);
-  return getResponse(`Deleted item: ${event.rawPath}`);
+  return getResponse({ "deleted": event.rawPath });
 }

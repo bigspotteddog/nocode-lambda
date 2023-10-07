@@ -10,6 +10,88 @@ import {
 const client = new DynamoDBClient({});
 const dynamo = DynamoDBDocumentClient.from(client);
 
+export const doGet = async function (tableName, path) {
+  const response = await get(tableName, path);
+  console.log(response);
+  const items = [];
+  for (let i = 0; i < response.Items.length; i++) {
+    let item = response.Items[i];
+    if (item.SK.endsWith("#counter")) {
+      continue;
+    }
+    delete item.PK;
+    delete item.SK;
+    delete item.SK2;
+    items.push(item);
+  }
+  return items;
+}
+
+export const doPost = async function (tableName, body) {
+  const eventBody = body;
+  if (eventBody.unique) {
+    const response = await checkUnique(TABLE_NAME, event.rawPath, eventBody.unique);
+    if (response.Count > 0) {
+      return getResponse(`Unique constraint violation: ${eventBody.unique}`, 400);
+    }
+  }
+
+  const id = await nextId(TABLE_NAME, event.rawPath);
+  console.log("nextId: " + id);
+  const path = event.rawPath + "/" + id;
+  body = {
+    id: id,
+    ...eventBody
+  };
+
+  console.log("post:");
+  console.log(body);
+
+  body = {
+    PK: getPartitionKey(path),
+    SK: getSortKey(path),
+    ...body,
+    created: new Date().toISOString()
+  }
+
+  if (eventBody.unique) {
+    body = {...body, SK2: eventBody.unique}
+  }
+
+  try {
+    const response = await post(TABLE_NAME, path, body);
+    console.log(response);
+  } catch(err) {
+    console.log(err);
+  }
+  return body;
+}
+
+export const doPut = async function (tableName, path, body) {
+  const eventBody = body;
+  if (eventBody.unique) {
+    const response = await checkUnique(TABLE_NAME, path, eventBody.unique);
+    if (response.Count > 0) {
+      return getResponse(`Unique constraint violation: ${eventBody.unique}`, 400);
+    }
+  }
+
+  body = { ...body, updated: new Date().toISOString() };
+
+  if (eventBody.unique) {
+    body = {...body, SK2: eventBody.unique}
+  }
+  const response = await put(TABLE_NAME, path, body);
+  console.log(response);
+  return body;
+}
+
+export const doDelete = async function (tableName, path) {
+  const response = await del(tableName, path);
+  console.log(response);
+  return true;
+}
+
 const getPartitionKey = function (path) {
   return path.substring(1).split("/").slice(0, 3).join("#");
 }
@@ -18,7 +100,7 @@ const getSortKey = function (path) {
   return path.substring(1).replaceAll("/", "#");
 }
 
-export const get = function (tableName, path) {
+const get = function (tableName, path) {
   return dynamo.send(
     new QueryCommand({
       TableName: tableName,
@@ -32,7 +114,7 @@ export const get = function (tableName, path) {
   );
 };
 
-export const checkUnique = function (tableName, path, unique) {
+const checkUnique = function (tableName, path, unique) {
   const params = {
     TableName: tableName,
     IndexName: "PK-SK2-index",
@@ -50,7 +132,7 @@ export const checkUnique = function (tableName, path, unique) {
   );
 };
 
-export const post = function(tableName, path, body) {
+const post = function(tableName, path, body) {
   return dynamo.send(
     new PutCommand({
       TableName: tableName,
@@ -63,7 +145,7 @@ export const post = function(tableName, path, body) {
   );
 };
 
-export const put = function (tableName, path, body) {
+const put = function (tableName, path, body) {
   var params = {
     TableName: tableName,
     Key: {
@@ -99,7 +181,7 @@ export const put = function (tableName, path, body) {
   return response;
 };
 
-export const del = function (tableName, path) {
+const del = function (tableName, path) {
   return dynamo.send(
     new DeleteCommand({
       TableName: tableName,
@@ -111,7 +193,7 @@ export const del = function (tableName, path) {
   );
 };
 
-export const nextId = async function (tableName, path) {
+const nextId = async function (tableName, path) {
   let id = 0;
   try {
     const response = await dynamo.send(
