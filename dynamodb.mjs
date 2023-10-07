@@ -43,18 +43,22 @@ export const doPost = async function (tableName, eventPath, eventBody) {
   };
 
   body = {
-    PK: getPartitionKey(path),
-    SK: getSortKey(path),
     ...body,
     created: new Date().toISOString()
   }
 
+  let postBody = {
+    ...body,
+    PK: getPartitionKey(path),
+    SK: getSortKey(path)
+  };
+
   if (eventBody.unique) {
-    body = { ...body, SK2: eventBody.unique }
+    postBody = { ...postBody, SK2: eventBody.unique }
   }
 
   try {
-    const response = await post(tableName, path, body);
+    const response = await post(tableName, path, postBody);
     console.log(response);
   } catch(err) {
     console.log(err);
@@ -72,10 +76,11 @@ export const doPut = async function (tableName, eventPath, eventBody) {
 
   let body = { ...eventBody, updated: new Date().toISOString() };
 
+  let putBody = { ...body };
   if (eventBody.unique) {
-    body = {...body, SK2: eventBody.unique}
+    putBody = { ...putBody, SK2: eventBody.unique}
   }
-  const response = await put(tableName, eventPath, body);
+  const response = await put(tableName, eventPath, putBody);
   console.log(response);
   return body;
 }
