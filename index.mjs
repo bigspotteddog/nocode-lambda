@@ -4,6 +4,12 @@ const allowedHostnames = {
   "localhost": true
 };
 
+const TABLE_NAME = "nocode";
+
+const HEADERS = {
+  "Content-Type": "application/json",
+};
+
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
@@ -42,6 +48,11 @@ export const handler = async (event, context) => {
     return getResponse(err.message, 400)
   }
 };
+
+const getResponse = function (body, statusCode = 200, headers = HEADERS) {
+  body = JSON.stringify(body);
+  return { body, statusCode, headers };
+}
 
 const doGet = async function (event, context) {
   const response = await get(TABLE_NAME, event.rawPath);
