@@ -10,8 +10,8 @@ import {
 const client = new DynamoDBClient({});
 const dynamo = DynamoDBDocumentClient.from(client);
 
-export const doGet = async function (tableName, path) {
-  const response = await get(tableName, path);
+export const doGet = async function (tableName, eventPath) {
+  const response = await get(tableName, eventPath);
   console.log(response);
   const items = [];
   for (let i = 0; i < response.Items.length; i++) {
@@ -27,16 +27,15 @@ export const doGet = async function (tableName, path) {
   return items;
 }
 
-export const doPost = async function (tableName, path, body) {
-  const eventBody = body;
+export const doPost = async function (tableName, eventPath, eventBody) {
   if (eventBody.unique) {
-    const response = await checkUnique(tableName, path, eventBody.unique);
+    const response = await checkUnique(tableName, eventPath, eventBody.unique);
     if (response.Count > 0) {
       return getResponse(`Unique constraint violation: ${eventBody.unique}`, 400);
     }
   }
 
-  const id = await nextId(tableName, path);
+  const id = await nextId(tableName, eventPath);
   console.log("nextId: " + id);
   const path = path + "/" + id;
   body = {
@@ -67,10 +66,9 @@ export const doPost = async function (tableName, path, body) {
   return body;
 }
 
-export const doPut = async function (tableName, path, body) {
-  const eventBody = body;
+export const doPut = async function (tableName, eventPath, eventBody) {
   if (eventBody.unique) {
-    const response = await checkUnique(tableName, path, eventBody.unique);
+    const response = await checkUnique(tableName, eventPath, eventBody.unique);
     if (response.Count > 0) {
       return getResponse(`Unique constraint violation: ${eventBody.unique}`, 400);
     }
@@ -81,13 +79,13 @@ export const doPut = async function (tableName, path, body) {
   if (eventBody.unique) {
     body = {...body, SK2: eventBody.unique}
   }
-  const response = await put(tableName, path, body);
+  const response = await put(tableName, eventPath, body);
   console.log(response);
   return body;
 }
 
-export const doDelete = async function (tableName, path) {
-  const response = await del(tableName, path);
+export const doDelete = async function (tableName, eventPath) {
+  const response = await del(tableName, eventPath);
   console.log(response);
   return true;
 }
