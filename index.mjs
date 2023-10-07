@@ -58,20 +58,26 @@ const doPost = async function (event, context) {
   const id = await nextId(TABLE_NAME, event.rawPath);
   console.log("nextId: " + id);
   const path = event.rawPath + "/" + id;
-  const body = {
+  let body = {
     id: id,
     ...eventBody
   };
 
   console.log("post:");
   console.log(body);
+
+  body = {
+    PK: getPartitionKey(path),
+    SK: getSortKey(path),
+    ...body
+  }
+
+  if (eventBody.unique) {
+    body = {...body, SK2: eventBody.unique}
+  }
+
   try {
-    const response = await post(TABLE_NAME, path, {
-      PK: getPartitionKey(path),
-      SK: getSortKey(path),
-      ...body,
-      SK2: eventBody.unique
-    });
+    const response = await post(TABLE_NAME, path, body);
     console.log(response);
   } catch(err) {
     console.log(err);
