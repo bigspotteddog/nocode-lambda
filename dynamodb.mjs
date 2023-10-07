@@ -27,18 +27,18 @@ export const doGet = async function (tableName, path) {
   return items;
 }
 
-export const doPost = async function (tableName, body) {
+export const doPost = async function (tableName, path, body) {
   const eventBody = body;
   if (eventBody.unique) {
-    const response = await checkUnique(tableName, event.rawPath, eventBody.unique);
+    const response = await checkUnique(tableName, path, eventBody.unique);
     if (response.Count > 0) {
       return getResponse(`Unique constraint violation: ${eventBody.unique}`, 400);
     }
   }
 
-  const id = await nextId(tableName, event.rawPath);
+  const id = await nextId(tableName, path);
   console.log("nextId: " + id);
-  const path = event.rawPath + "/" + id;
+  const path = path + "/" + id;
   body = {
     id: id,
     ...eventBody

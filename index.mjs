@@ -57,7 +57,7 @@ const doGet = function (event, context) {
 }
 
 const doPost = function (event, context) {
-  const body = dynamodb.doPost(TABLE_NAME, event.body);
+  const body = dynamodb.doPost(TABLE_NAME, event.rawPath, event.body);
   return getResponse(body);
 }
 
