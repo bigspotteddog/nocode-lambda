@@ -30,6 +30,8 @@ export const doGet = async function (tableName, eventPath) {
 export const doPost = async function (tableName, eventPath, eventBody) {
   if (eventBody.unique) {
     const response = await checkUnique(tableName, eventPath, eventBody.unique);
+    console.log("unique");
+    console.log(response);
     if (response.Count > 0) {
       return getResponse(`Unique constraint violation: ${eventBody.unique}`, 400);
     }
