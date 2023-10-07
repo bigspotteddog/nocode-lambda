@@ -28,6 +28,7 @@ export const doGet = async function (tableName, eventPath) {
 }
 
 export const doPost = async function (tableName, eventPath, eventBody) {
+  console.log("1");
   if (eventBody.unique) {
     const response = await checkUnique(tableName, eventPath, eventBody.unique);
     if (response.Count > 0) {
@@ -35,6 +36,7 @@ export const doPost = async function (tableName, eventPath, eventBody) {
     }
   }
 
+  console.log("2");
   const id = await nextId(tableName, eventPath);
   console.log("nextId: " + id);
   const path = path + "/" + id;
@@ -43,9 +45,11 @@ export const doPost = async function (tableName, eventPath, eventBody) {
     ...eventBody
   };
 
+  console.log("3");
   console.log("post:");
   console.log(body);
 
+  console.log("4");
   body = {
     PK: getPartitionKey(path),
     SK: getSortKey(path),
@@ -57,6 +61,7 @@ export const doPost = async function (tableName, eventPath, eventBody) {
     body = {...body, SK2: eventBody.unique}
   }
 
+  console.log("5");
   try {
     const response = await post(tableName, path, body);
     console.log(response);
