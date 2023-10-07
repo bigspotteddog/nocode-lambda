@@ -63,13 +63,19 @@ const doPost = async function (event, context) {
     ...eventBody
   };
 
-  const response = await post(TABLE_NAME, path, {
-    PK: getPartitionKey(path),
-    SK: getSortKey(path),
-    ...body,
-    SK2: eventBody.unique
-  });
-  console.log(response);
+  console.log("post:");
+  console.log(body);
+  try {
+    const response = await post(TABLE_NAME, path, {
+      PK: getPartitionKey(path),
+      SK: getSortKey(path),
+      ...body,
+      SK2: eventBody.unique
+    });
+    console.log(response);
+  } catch(err) {
+    console.log(err);
+  }
   return getResponse(body);
 }
 
