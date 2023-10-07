@@ -56,6 +56,7 @@ const doPost = async function (event, context) {
   }
 
   const id = await nextId(TABLE_NAME, event.rawPath);
+  console.log("nextId: " + id);
   const path = event.rawPath + "/" + id;
   const body = {
     id: id,
