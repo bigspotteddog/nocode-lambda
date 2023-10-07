@@ -10,7 +10,9 @@ import {
 export const handler = async (event, context) => {
   console.log(event);
   console.log(context);
-  console.log("origin: " + new URL(event.headers.origin));
+  const url = new URL(event.headers.origin);
+  console.log("origin: " + url);
+  console.log("domain: " + url.hostname);
   try {
     switch (event.routeKey) {
       case "DELETE /v1/{proxy+}":
