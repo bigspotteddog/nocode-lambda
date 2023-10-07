@@ -32,7 +32,7 @@ export const get = function (tableName, path) {
   );
 };
 
-const checkUnique = function (tableName, path, unique) {
+export const checkUnique = function (tableName, path, unique) {
   const params = {
     TableName: tableName,
     IndexName: "PK-SK2-index",
