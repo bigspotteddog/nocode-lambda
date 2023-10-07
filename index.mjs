@@ -95,7 +95,7 @@ const doPost = async function (event, context) {
     PK: getPartitionKey(path),
     SK: getSortKey(path),
     ...body,
-    created: new Date()
+    created: new Date().toISOString()
   }
 
   if (eventBody.unique) {
@@ -121,7 +121,7 @@ const doPut = async function (event, context) {
   }
 
   let body = JSON.parse(event.body);
-  body = {...body, updated: new Date()};
+  body = {...body, updated: new Date().toISOString()};
 
   if (eventBody.unique) {
     body = {...body, SK2: eventBody.unique}
