@@ -197,8 +197,10 @@ const del = function (tableName, path) {
 };
 
 const nextId = async function (tableName, path) {
+  console.log("a");
   let id = 0;
   try {
+    console.log("b");
     const response = await dynamo.send(
       new UpdateCommand({
         TableName: tableName,
@@ -216,8 +218,10 @@ const nextId = async function (tableName, path) {
         ReturnValues: "UPDATED_NEW",
       })
     );
+    console.log("c");
     return response.Attributes && response.Attributes.Increment ? response.Attributes.Increment : 0;
   } catch (err) {
+    console.log("d");
     console.log(err);
     if (err.__type === "com.amazon.coral.validate#ValidationException") {
       id = 10004321;
@@ -228,5 +232,6 @@ const nextId = async function (tableName, path) {
       console.log(response);
     }
   }
+  console.log("e");
   return id;
 }
