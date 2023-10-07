@@ -73,7 +73,16 @@ const doPost = async function (event, context) {
 }
 
 const doPut = async function (event, context) {
-  const body = JSON.parse(event.body);
+  const eventBody = JSON.parse(event.body);
+  if (eventBody.unique) {
+    const response = await checkUnique(TABLE_NAME, event.rawPath, eventBody.unique);
+    if (response.Count > 0) {
+      return getResponse(`Unique constraint violation: ${eventBody.unique}`, 400);
+    }
+  }
+
+  let body = JSON.parse(event.body);
+  body = { ...body, SK2: eventBody.unique };
   const response = await put(TABLE_NAME, event.rawPath, body);
   console.log(response);
   return getResponse(body);
