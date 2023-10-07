@@ -11,6 +11,12 @@ const allowedHostnames = {
   "localhost": true
 };
 
+const CORS_HEADERS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+  "Access-Control-Allow-Headers": "X-Requested-With"
+}
+
 export const handler = async (event, context) => {
   console.log(event);
   console.log(context);
@@ -26,7 +32,7 @@ export const handler = async (event, context) => {
     switch (event.routeKey) {
       case "OPTIONS /v1/{proxy+}":
         console.log("options called");
-        return getResponse("", 204, HEADERS);
+        return getResponse("", 204, CORS_HEADERS);
       case "DELETE /v1/{proxy+}":
         return doDelete(event, context);
       case "GET /v1/{proxy+}":
