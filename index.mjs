@@ -7,6 +7,10 @@ import {
   QueryCommand,
 } from "@aws-sdk/lib-dynamodb";
 
+const allowedHostnames = {
+  "localhost": true
+};
+
 export const handler = async (event, context) => {
   console.log(event);
   console.log(context);
@@ -14,7 +18,7 @@ export const handler = async (event, context) => {
   console.log("origin: " + url);
   console.log("domain: " + url.hostname);
   const hostname = url.hostname;
-  if (!allowedHostname[hostname]) {
+  if (!allowedHostnames[hostname]) {
     return getResponse("Unauthorized", 401);
   }
 
