@@ -13,6 +13,11 @@ export const handler = async (event, context) => {
   const url = new URL(event.headers.origin);
   console.log("origin: " + url);
   console.log("domain: " + url.hostname);
+  const hostname = url.hostname;
+  if (!allowedHostname[hostname]) {
+    return getResponse("Unauthorized", 401);
+  }
+
   try {
     switch (event.routeKey) {
       case "DELETE /v1/{proxy+}":
