@@ -8,6 +8,8 @@ import {
 } from "@aws-sdk/lib-dynamodb";
 
 export const handler = async (event, context) => {
+  console.log(event);
+  console.log(context);
   try {
     switch (event.routeKey) {
       case "DELETE /v1/{proxy+}":
