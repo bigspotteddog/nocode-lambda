@@ -115,7 +115,13 @@ const get = function (tableName, path) {
   );
 };
 
-const checkUnique = function (tableName, path, unique) {
+const checkUnique = async function (tableName, path, unique) {
+  const response = get(tableName, unique.split("#").slice(0, 3).join("#"));
+  console.log(response);
+  return response;
+};
+
+const checkUnique_old = function (tableName, path, unique) {
   const params = {
     TableName: tableName,
     KeyConditionExpression:
