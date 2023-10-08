@@ -62,8 +62,12 @@ const doPost = async function (event, context) {
 }
 
 const doPut = async function (event, context) {
+  try {
   const body = await dynamodb.doPut(TABLE_NAME, event.rawPath, JSON.parse(event.body));
   return getResponse(body);
+  } catch (err) {
+    return getResponse(err.getMessage(), 409);
+  }
 }
 
 const doDelete = async function (event, context) {
