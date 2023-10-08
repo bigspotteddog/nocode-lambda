@@ -94,7 +94,9 @@ export const doPut = async function (tableName, eventPath, eventBody) {
 
     const response = await checkUnique(tableName, eventPath, search);
     if (response.Count > 0) {
-      throw new Error(`Unique constraint violation: ${eventBody.unique}`);
+      if (!response.Items[0].SK.endsWith(eventPath.substring(1).replaceAll("/", "#"))) {
+        throw new Error(`Unique constraint violation: ${eventBody.unique}`);
+      }
     }
   }
 
