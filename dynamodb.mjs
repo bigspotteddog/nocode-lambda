@@ -124,7 +124,7 @@ const getByKeys = function (tableName, pk, sk) {
 
 const checkUnique = async function (tableName, path, unique) {
   console.log(unique);
-  const response = await get(tableName, getPartitionKey(path), unique.split("#").slice(0, 3).join("#"));
+  const response = await getByKeys(tableName, getPartitionKey(path), unique.split("#").slice(0, 3).join("#"));
   console.log(response);
   return response;
 };
