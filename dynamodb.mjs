@@ -119,6 +119,7 @@ const get = function (tableName, path) {
 };
 
 const checkUnique = async function (tableName, path, unique) {
+  console.log(unique);
   const response = await get(tableName, unique.split("#").slice(0, 3).join("#"));
   console.log(response);
   return response;
