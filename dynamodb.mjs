@@ -102,13 +102,17 @@ const getSortKey = function (path) {
 }
 
 const get = function (tableName, path) {
+  return getByKeys(tableName, getPartitionKey(path), getSortKey(path));
+};
+
+const getByKeys = function (tableName, pk, sk) {
   const params = {
     TableName: tableName,
     KeyConditionExpression:
       "PK = :pk AND begins_with (SK, :sk)",
     ExpressionAttributeValues: {
-      ":pk": getPartitionKey(path),
-      ":sk": getSortKey(path)
+      ":pk": pk,
+      ":sk": sk
     },
   };
   console.log(params);
@@ -120,7 +124,7 @@ const get = function (tableName, path) {
 
 const checkUnique = async function (tableName, path, unique) {
   console.log(unique);
-  const response = await get(tableName, unique.split("#").slice(0, 3).join("#"));
+  const response = await get(tableName, getPartitionKey(path), unique.split("#").slice(0, 3).join("#"));
   console.log(response);
   return response;
 };
