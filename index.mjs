@@ -61,12 +61,8 @@ const doGet = async function (event, context) {
 }
 
 const doPost = async function (event, context) {
-  try {
-    const body = await dynamodb.doPost(TABLE_NAME, event.rawPath, JSON.parse(event.body));
-    return getResponse(body);
-  } catch (err) {
-    return getResponse(err.message, 400);
-  }
+  const body = await dynamodb.doPost(TABLE_NAME, event.rawPath, JSON.parse(event.body));
+  return getResponse(body);
 }
 
 const doPut = async function (event, context) {
