@@ -102,16 +102,19 @@ const getSortKey = function (path) {
 }
 
 const get = function (tableName, path) {
+  const params = {
+    TableName: tableName,
+    KeyConditionExpression:
+      "PK = :pk AND begins_with (SK, :sk)",
+    ExpressionAttributeValues: {
+      ":pk": getPartitionKey(path),
+      ":sk": getSortKey(path)
+    },
+  };
+  console.log(params);
+
   return dynamo.send(
-    new QueryCommand({
-      TableName: tableName,
-      KeyConditionExpression:
-        "PK = :pk AND begins_with (SK, :sk)",
-      ExpressionAttributeValues: {
-        ":pk": getPartitionKey(path),
-        ":sk": getSortKey(path)
-      },
-    })
+    new QueryCommand(params)
   );
 };
 
