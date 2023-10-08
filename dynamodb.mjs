@@ -155,8 +155,8 @@ const checkUnique = async function (tableName, path, unique) {
   return response;
 };
 
-const post = function(tableName, path, body) {
-  return dynamo.send(
+const post = async function(tableName, path, body) {
+  return await dynamo.send(
     new PutCommand({
       TableName: tableName,
       Item: {
@@ -168,7 +168,7 @@ const post = function(tableName, path, body) {
   );
 };
 
-const put = function (tableName, path, body) {
+const put = async function (tableName, path, body) {
   var params = {
     TableName: tableName,
     Key: {
@@ -194,7 +194,7 @@ const put = function (tableName, path, body) {
     prefix = ", ";
   }
 
-  const response = dynamo.send(
+  const response = await dynamo.send(
     new UpdateCommand(params)
   );
   console.log("update");
