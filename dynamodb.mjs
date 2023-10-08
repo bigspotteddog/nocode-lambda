@@ -32,7 +32,7 @@ const getUniqueKey = function(eventBody) {
   for (let i = 0; i < keySplit.length; i++) {
     let field = keySplit[i].trim();
     let value = eventBody[field];
-    if (uniqueKey.length > 0) key += "#";
+    if (uniqueKey.length > 0) uniqueKey += "#";
     uniqueKey += field + "#" + value;
   }
   return uniqueKey;
