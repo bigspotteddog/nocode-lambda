@@ -52,26 +52,37 @@ const getResponse = function (body, statusCode = 200, headers = HEADERS) {
 }
 
 const doGet = async function (event, context) {
-  const items = await dynamodb.doGet(TABLE_NAME, event.rawPath);
-  return getResponse(items);
+  try {
+    const items = await dynamodb.doGet(TABLE_NAME, event.rawPath);
+    return getResponse(items);
+  } catch (err) {
+    return getResponse(err.errorMessage, 400);
+  }
 }
 
 const doPost = async function (event, context) {
-  const body = await dynamodb.doPost(TABLE_NAME, event.rawPath, JSON.parse(event.body));
-  return getResponse(body);
+  try {
+    const body = await dynamodb.doPost(TABLE_NAME, event.rawPath, JSON.parse(event.body));
+    return getResponse(body);
+  } catch (err) {
+    return getResponse(err.errorMessage, 400);
+  }
 }
 
 const doPut = async function (event, context) {
   try {
-  const body = await dynamodb.doPut(TABLE_NAME, event.rawPath, JSON.parse(event.body));
-  return getResponse(body);
+    const body = await dynamodb.doPut(TABLE_NAME, event.rawPath, JSON.parse(event.body));
+    return getResponse(body);
   } catch (err) {
-    return getResponse(err.getMessage(), 409);
+    return getResponse(err.errorMessage, 400);
   }
 }
 
 const doDelete = async function (event, context) {
-  const response = await dynamodb.del(TABLE_NAME, event.rawPath);
-  console.log(response);
-  return getResponse({ "deleted": event.rawPath });
+  try {
+    const response = await dynamodb.del(TABLE_NAME, event.rawPath);
+    return getResponse({ "deleted": event.rawPath });
+  } catch (err) {
+    return getResponse(err.errorMessage, 400);
+  }
 }
