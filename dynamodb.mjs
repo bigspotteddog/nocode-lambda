@@ -30,7 +30,7 @@ export const doPost = async function (tableName, eventPath, eventBody) {
   if (eventBody.unique) {
     const response = await checkUnique(tableName, eventPath, eventBody.unique);
     if (response.Count > 0) {
-      return getResponse(`Unique constraint violation: ${eventBody.unique}`, 400);
+      throw new Error(`Unique constraint violation: ${eventBody.unique}`);
     }
   }
 
@@ -61,7 +61,7 @@ export const doPost = async function (tableName, eventPath, eventBody) {
   try {
     const response = await post(tableName, path, postBody);
   } catch(err) {
-    return getResponse("Unable to persist item.", 409);
+    throw new Error("Unable to persist item.");
   }
   return body;
 }
@@ -70,7 +70,7 @@ export const doPut = async function (tableName, eventPath, eventBody) {
   if (eventBody.unique) {
     const response = await checkUnique(tableName, eventPath, eventBody.unique);
     if (response.Count > 0) {
-      return getResponse(`Unique constraint violation: ${eventBody.unique}`, 400);
+      throw new Error(`Unique constraint violation: ${eventBody.unique}`);
     }
   }
 
