@@ -54,7 +54,7 @@ export const doPost = async function (tableName, eventPath, eventBody) {
 
   if (eventBody.unique) {
     const response = post(tableName, eventPath, {
-      SK2: eventBody.unique
+      SK: eventBody.unique
     });
   }
 
@@ -80,7 +80,7 @@ export const doPut = async function (tableName, eventPath, eventBody) {
 
   if (eventBody.unique) {
     const response = post(tableName, eventPath, {
-      SK2: eventBody.unique
+      SK: eventBody.unique
     });
   }
 
@@ -118,12 +118,11 @@ const get = function (tableName, path) {
 const checkUnique = function (tableName, path, unique) {
   const params = {
     TableName: tableName,
-    IndexName: "PK-SK2-index",
     KeyConditionExpression:
-      "PK = :pk AND SK2 = :sk2",
+      "PK = :pk AND SK = :sk",
     ExpressionAttributeValues: {
       ":pk": getPartitionKey(path),
-      ":sk2": unique
+      ":sk": unique
     }
   };
   console.log("check unique");
