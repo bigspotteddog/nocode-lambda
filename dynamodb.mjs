@@ -197,7 +197,8 @@ const put = function (tableName, path, body) {
   const response = dynamo.send(
     new UpdateCommand(params)
   );
-
+  console.log("update");
+  console.log(response);
   return response;
 };
 
