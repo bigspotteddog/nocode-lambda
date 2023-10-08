@@ -28,8 +28,10 @@ export const doGet = async function (tableName, eventPath) {
 
 export const doPost = async function (tableName, eventPath, eventBody) {
   if (eventBody.unique) {
-    const search = "unique#" + eventBody.unique + eventPath.substring(1).replaceAll("/", "#");
+    const search = "unique#" + eventBody.unique + "#" + eventPath.substring(1).replaceAll("/", "#");
     const response = await checkUnique(tableName, eventPath, search);
+    console.log("doPost check unique");
+    console.log(response);
     if (response.Count > 0) {
       throw new Error(`Unique constraint violation: ${eventBody.unique}`);
     }
@@ -70,7 +72,7 @@ export const doPost = async function (tableName, eventPath, eventBody) {
 
 export const doPut = async function (tableName, eventPath, eventBody) {
   if (eventBody.unique) {
-    const search = "unique#" + eventBody.unique + eventPath.substring(1).replaceAll("/", "#");
+    const search = "unique#" + eventBody.unique + "#" + eventPath.substring(1).replaceAll("/", "#");
     const response = await checkUnique(tableName, eventPath, search);
     if (response.Count > 0) {
       throw new Error(`Unique constraint violation: ${eventBody.unique}`);
