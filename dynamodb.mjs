@@ -28,7 +28,15 @@ export const doGet = async function (tableName, eventPath) {
 
 export const doPost = async function (tableName, eventPath, eventBody) {
   if (eventBody.unique) {
-    const search = "unique#" + eventBody.unique + "#" + eventPath.substring(1).replaceAll("/", "#");
+    let key = "";
+    const keySplit = key.split(",");
+    for (let i = 0; i < keySplit.length; i++) {
+      let field = keySplit[i].trim();
+      let value = eventBody[field];
+      if (key.length > 0) key += "#";
+      key += field + "#" + value;
+    }
+    const search = "unique#" + key + "#" + eventPath.substring(1).replaceAll("/", "#");
     const response = await checkUnique(tableName, eventPath, search);
     console.log("doPost check unique");
     console.log(response);
