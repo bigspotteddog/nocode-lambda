@@ -103,7 +103,7 @@ export const doPut = async function (tableName, eventPath, eventBody) {
   let putBody = { ...body };
 
   if (eventBody.unique) {
-    const sk = search + "#" + eventPath.substring(1).replaceAll("/", "#") + "#" + id;
+    const sk = search + "#" + eventPath.substring(1).replaceAll("/", "#");
     const response = post(tableName, eventPath, {
       SK: sk
     });
