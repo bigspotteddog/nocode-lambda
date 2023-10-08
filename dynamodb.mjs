@@ -28,7 +28,8 @@ export const doGet = async function (tableName, eventPath) {
 
 export const doPost = async function (tableName, eventPath, eventBody) {
   if (eventBody.unique) {
-    const response = await checkUnique(tableName, eventPath, eventBody.unique);
+    const search = "unique#" + eventBody.unique + eventPath.substring(1).replaceAll("/", "#");
+    const response = await checkUnique(tableName, eventPath, search);
     if (response.Count > 0) {
       throw new Error(`Unique constraint violation: ${eventBody.unique}`);
     }
@@ -53,8 +54,9 @@ export const doPost = async function (tableName, eventPath, eventBody) {
   };
 
   if (eventBody.unique) {
+    const sk = "unique#" + eventBody.unique + eventPath.substring(1).replaceAll("/", "#") + "#" + id;
     const response = post(tableName, eventPath, {
-      SK: eventBody.unique + "#" + id
+      SK: sk
     });
   }
 
@@ -68,7 +70,8 @@ export const doPost = async function (tableName, eventPath, eventBody) {
 
 export const doPut = async function (tableName, eventPath, eventBody) {
   if (eventBody.unique) {
-    const response = await checkUnique(tableName, eventPath, eventBody.unique);
+    const search = "unique#" + eventBody.unique + eventPath.substring(1).replaceAll("/", "#");
+    const response = await checkUnique(tableName, eventPath, search);
     if (response.Count > 0) {
       throw new Error(`Unique constraint violation: ${eventBody.unique}`);
     }
@@ -79,8 +82,9 @@ export const doPut = async function (tableName, eventPath, eventBody) {
   let putBody = { ...body };
 
   if (eventBody.unique) {
+    const sk = "unique#" + eventBody.unique + eventPath.substring(1).replaceAll("/", "#") + "#" + id;
     const response = post(tableName, eventPath, {
-      SK: eventBody.unique + "#" + id
+      SK: sk
     });
   }
 
