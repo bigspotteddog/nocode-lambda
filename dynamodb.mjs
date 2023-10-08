@@ -54,7 +54,7 @@ export const doPost = async function (tableName, eventPath, eventBody) {
 
   if (eventBody.unique) {
     const response = post(tableName, eventPath, {
-      SK: eventBody.unique
+      SK: eventBody.unique + "#" + id
     });
   }
 
@@ -80,7 +80,7 @@ export const doPut = async function (tableName, eventPath, eventBody) {
 
   if (eventBody.unique) {
     const response = post(tableName, eventPath, {
-      SK: eventBody.unique
+      SK: eventBody.unique + "#" + id
     });
   }
 
@@ -123,27 +123,9 @@ const getByKeys = function (tableName, pk, sk) {
 };
 
 const checkUnique = async function (tableName, path, unique) {
-  console.log(unique);
-  const response = await getByKeys(tableName, getPartitionKey(path), unique.split("#").slice(0, 3).join("#"));
-  console.log(response);
+  const response = await getByKeys(
+    tableName, getPartitionKey(path), unique.split("#").slice(0, 3).join("#"));
   return response;
-};
-
-const checkUnique_old = function (tableName, path, unique) {
-  const params = {
-    TableName: tableName,
-    KeyConditionExpression:
-      "PK = :pk AND SK = :sk",
-    ExpressionAttributeValues: {
-      ":pk": getPartitionKey(path),
-      ":sk": unique
-    }
-  };
-  console.log("check unique");
-  console.log(params);
-  return dynamo.send(
-    new QueryCommand(params)
-  );
 };
 
 const post = function(tableName, path, body) {
