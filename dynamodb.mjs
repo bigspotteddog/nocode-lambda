@@ -26,17 +26,25 @@ export const doGet = async function (tableName, eventPath) {
   return items;
 }
 
+const getUniqueKey = function(eventBody) {
+  let uniqueKey = "";
+  const keySplit = eventBody.unique.split(",");
+  for (let i = 0; i < keySplit.length; i++) {
+    let field = keySplit[i].trim();
+    let value = eventBody[field];
+    if (uniqueKey.length > 0) key += "#";
+    uniqueKey += field + "#" + value;
+  }
+  return uniqueKey;
+}
+
 export const doPost = async function (tableName, eventPath, eventBody) {
+  let search = "";
+  const uniqueKey = getUniqueKey(eventBody);
+
   if (eventBody.unique) {
-    let key = "";
-    const keySplit = key.split(",");
-    for (let i = 0; i < keySplit.length; i++) {
-      let field = keySplit[i].trim();
-      let value = eventBody[field];
-      if (key.length > 0) key += "#";
-      key += field + "#" + value;
-    }
-    const search = "unique#" + key + "#" + eventPath.substring(1).replaceAll("/", "#");
+    search = "unique#" + uniqueKey + "#" + eventPath.substring(1).replaceAll("/", "#");
+
     const response = await checkUnique(tableName, eventPath, search);
     console.log("doPost check unique");
     console.log(response);
@@ -64,7 +72,7 @@ export const doPost = async function (tableName, eventPath, eventBody) {
   };
 
   if (eventBody.unique) {
-    const sk = "unique#" + eventBody.unique + "#" + eventPath.substring(1).replaceAll("/", "#") + "#" + id;
+    const sk = search + "#" + id;
     const response = post(tableName, eventPath, {
       SK: sk
     });
