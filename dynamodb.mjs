@@ -115,6 +115,7 @@ export const doPut = async function (tableName, eventPath, eventBody) {
   }
 
   const response = await put(tableName, eventPath, putBody);
+  console.log(response);
   return body;
 }
 
