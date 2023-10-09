@@ -105,7 +105,7 @@ export const doPut = async function (tableName, eventPath, eventBody) {
   let putBody = { ...body };
 
   if (eventBody.unique) {
-    let path = eventPath.substring(1).split("/");
+    let path = eventPath.split("/");
     path = path.slice(0, path.length - 1).join("/");
     console.log(path);
     const sk = search + "#" + eventPath.substring(1).replaceAll("/", "#");
