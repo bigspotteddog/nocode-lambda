@@ -56,6 +56,7 @@ const doGet = async function (event, context) {
     const items = await dynamodb.doGet(TABLE_NAME, event.rawPath);
     return getResponse(items);
   } catch (err) {
+    console.log(err);
     return getResponse(err.message, 400);
   }
 }
@@ -65,6 +66,7 @@ const doPost = async function (event, context) {
     const body = await dynamodb.doPost(TABLE_NAME, event.rawPath, JSON.parse(event.body));
     return getResponse(body);
   } catch (err) {
+    console.log(err);
     return getResponse(err.message, 400);
   }
 }
@@ -74,6 +76,7 @@ const doPut = async function (event, context) {
     const body = await dynamodb.doPut(TABLE_NAME, event.rawPath, JSON.parse(event.body));
     return getResponse(body);
   } catch (err) {
+    console.log(err);
     return getResponse(err.message, 400);
   }
 }
@@ -83,6 +86,7 @@ const doDelete = async function (event, context) {
     const response = await dynamodb.del(TABLE_NAME, event.rawPath);
     return getResponse({ "deleted": event.rawPath });
   } catch (err) {
+    console.log(err);
     return getResponse(err.message, 400);
   }
 }
