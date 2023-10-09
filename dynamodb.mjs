@@ -92,9 +92,9 @@ export const doPut = async function (tableName, eventPath, eventBody) {
   if (eventBody.unique) {
     search = "unique#" + uniqueKey;
 
-    const response = await checkUnique(tableName, eventPath, search);
-    if (response.Count > 0) {
-      if (!response.Items[0].SK.endsWith(eventPath.substring(1).replaceAll("/", "#"))) {
+    const uniqueResponse = await checkUnique(tableName, eventPath, search);
+    if (uniqueResponse.Count > 0) {
+      if (!uniqueResponse.Items[0].SK.endsWith(eventPath.substring(1).replaceAll("/", "#"))) {
         throw new Error(`Unique constraint violation: ${eventBody.unique}`);
       }
     }
@@ -108,22 +108,22 @@ export const doPut = async function (tableName, eventPath, eventBody) {
     let path = eventPath.split("/");
     path = path.slice(0, path.length - 1).join("/");
     const sk = search + "#" + eventPath.substring(1).replaceAll("/", "#");
-    const response = post(tableName, path, {
+    const postResponse = post(tableName, path, {
       SK: sk
     });
   }
 
-  const response = await put(tableName, eventPath, putBody);
-  if (body.unique !== response.Attributes.unique) {
-    const deleteSearch = "unique#" + getUniqueKey(response.Attributes.unique);
+  const putResponse = await put(tableName, eventPath, putBody);
+  if (body.unique !== putResponse.Attributes.unique) {
+    const deleteSearch = "unique#" + getUniqueKey(putResponse.Attributes.unique);
     let path = eventPath.split("/");
     path = path.slice(0, path.length - 1).join("/");
     const sk = deleteSearch + "#" + eventPath.substring(1).replaceAll("/", "#");
-    const response = await delByKeys(tableName, getPartitionKey(path), sk);
+    const delResponse = await delByKeys(tableName, getPartitionKey(path), sk);
     console.log("delete old unique");
-    console.log(response);
+    console.log(delResponse);
   }
-  body = {...response.Attributes, ...body};
+  body = {...putResponse.Attributes, ...body};
   delete body.PK;
   delete body.SK;
   delete body.SK2;
