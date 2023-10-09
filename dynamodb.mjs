@@ -115,8 +115,7 @@ export const doPut = async function (tableName, eventPath, eventBody) {
   }
 
   const response = await put(tableName, eventPath, putBody);
-  console.log(response);
-  return body;
+  return {...response.Attributes, ...body};
 }
 
 export const doDelete = async function (tableName, eventPath) {
@@ -201,8 +200,6 @@ const put = async function (tableName, path, body) {
   const response = await dynamo.send(
     new UpdateCommand(params)
   );
-  console.log("update");
-  console.log(response);
   return response;
 };
 
