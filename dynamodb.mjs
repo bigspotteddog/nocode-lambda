@@ -28,12 +28,14 @@ export const doGet = async function (tableName, eventPath) {
 
 const getUniqueKey = function(eventBody) {
   let uniqueKey = "";
-  const keySplit = eventBody.unique.split(",");
-  for (let i = 0; i < keySplit.length; i++) {
-    let field = keySplit[i].trim();
-    let value = eventBody[field];
-    if (uniqueKey.length > 0) uniqueKey += "#";
-    uniqueKey += field + "#" + value;
+  if (eventBody.unique) {
+    const keySplit = eventBody.unique.split(",");
+    for (let i = 0; i < keySplit.length; i++) {
+      let field = keySplit[i].trim();
+      let value = eventBody[field];
+      if (uniqueKey.length > 0) uniqueKey += "#";
+      uniqueKey += field + "#" + value;
+    }
   }
   return uniqueKey;
 }
