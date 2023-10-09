@@ -11,7 +11,7 @@ const client = new DynamoDBClient({});
 const dynamo = DynamoDBDocumentClient.from(client);
 
 export const doGet = async function (tableName, eventPath) {
-  const response = await get(tableName, eventPath);
+  const response  = await get(tableName, eventPath);
   const items = [];
   for (let i = 0; i < response.Items.length; i++) {
     let item = response.Items[i];
