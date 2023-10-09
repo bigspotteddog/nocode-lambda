@@ -178,7 +178,7 @@ const put = async function (tableName, path, body) {
     ExpressionAttributeValues: {},
     ExpressionAttributeNames: {},
     UpdateExpression: "",
-    ReturnValues: "ALL_NEW"
+    ReturnValues: "ALL_OLD"
   };
 
   let prefix = "set ";
