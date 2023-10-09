@@ -115,7 +115,11 @@ export const doPut = async function (tableName, eventPath, eventBody) {
   }
 
   const response = await put(tableName, eventPath, putBody);
-  return {...response.Attributes, ...body};
+  body = {...response.Attributes, ...body};
+  delete body.PK;
+  delete body.SK;
+  delete body.SK2;
+  return body;
 }
 
 export const doDelete = async function (tableName, eventPath) {
