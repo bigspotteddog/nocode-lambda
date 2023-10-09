@@ -107,7 +107,6 @@ export const doPut = async function (tableName, eventPath, eventBody) {
   if (eventBody.unique) {
     let path = eventPath.split("/");
     path = path.slice(0, path.length - 1).join("/");
-    console.log(path);
     const sk = search + "#" + eventPath.substring(1).replaceAll("/", "#");
     const response = post(tableName, path, {
       SK: sk
@@ -115,6 +114,15 @@ export const doPut = async function (tableName, eventPath, eventBody) {
   }
 
   const response = await put(tableName, eventPath, putBody);
+  if (body.unique !== response.Attributes.unique) {
+    const deleteSearch = "unique#" + getUniqueKey(response.Attributes.unique);
+    let path = eventPath.split("/");
+    path = path.slice(0, path.length - 1).join("/");
+    const sk = deleteSearch + "#" + eventPath.substring(1).replaceAll("/", "#");
+    const response = delByKeys(tableName, getPartitionKey(path), sk);
+    console.log("delete old unique");
+    console.log(response);
+  }
   body = {...response.Attributes, ...body};
   delete body.PK;
   delete body.SK;
@@ -207,16 +215,22 @@ const put = async function (tableName, path, body) {
   return response;
 };
 
-const del = function (tableName, path) {
+const delByKeys = function (tableName, pk, sk) {
   return dynamo.send(
     new DeleteCommand({
       TableName: tableName,
       Key: {
-        PK: getPartitionKey(path),
-        SK: getSortKey(path)
+        PK: pk,
+        SK: sk
       },
     })
   );
+}
+
+const del = function (tableName, path) {
+  const pk = getPartitionKey(path);
+  const sk = getSortKey(path);
+  return delByKeys(tableName, pk, sk);
 };
 
 const nextId = async function (tableName, path) {
