@@ -119,7 +119,7 @@ export const doPut = async function (tableName, eventPath, eventBody) {
     let path = eventPath.split("/");
     path = path.slice(0, path.length - 1).join("/");
     const sk = deleteSearch + "#" + eventPath.substring(1).replaceAll("/", "#");
-    const response = delByKeys(tableName, getPartitionKey(path), sk);
+    const response = await delByKeys(tableName, getPartitionKey(path), sk);
     console.log("delete old unique");
     console.log(response);
   }
