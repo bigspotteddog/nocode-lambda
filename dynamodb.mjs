@@ -118,7 +118,7 @@ export const doPut = async function (tableName, eventPath, eventBody) {
   const putResponse = await put(tableName, eventPath, putBody);
   console.log(putResponse);
   if (putResponse.Attributes.unique && putResponse.Attributes.unique !== body.unique) {
-    const deleteSearch = "unique#" + getUniqueKey(putResponse.Attributes.unique);
+    const deleteSearch = "unique#" + getUniqueKey(putResponse.Attributes);
     let path = eventPath.split("/");
     path = path.slice(0, path.length - 1).join("/");
     const sk = deleteSearch + "#" + eventPath.substring(1).replaceAll("/", "#");
