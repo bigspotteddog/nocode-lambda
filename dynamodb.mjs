@@ -18,9 +18,7 @@ export const doGet = async function (tableName, eventPath) {
     if (item.SK.endsWith("#counter")) {
       continue;
     }
-    delete item.PK;
-    delete item.SK;
-    delete item.SK2;
+    cleanItem(item);
     items.push(item);
   }
   return items;
@@ -121,9 +119,7 @@ export const doPut = async function (tableName, eventPath, eventBody) {
     const delResponse = await delByKeys(tableName, getPartitionKey(path), sk);
   }
   body = {...putResponse.Attributes, ...body};
-  delete body.PK;
-  delete body.SK;
-  delete body.SK2;
+  cleanItem(body);
   return body;
 }
 
@@ -260,3 +256,9 @@ const nextId = async function (tableName, path) {
   }
   return id;
 }
+function cleanItem(item) {
+  delete item.PK;
+  delete item.SK;
+  delete item.SK2;
+}
+
