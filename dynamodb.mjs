@@ -218,6 +218,9 @@ const put = async function (tableName, path, body) {
 };
 
 const delByKeys = function (tableName, pk, sk) {
+  console.log("delByKeys");
+  console.log(pk);
+  console.log(sk);
   return dynamo.send(
     new DeleteCommand({
       TableName: tableName,
