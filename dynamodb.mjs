@@ -47,8 +47,6 @@ export const doPost = async function (tableName, eventPath, eventBody) {
   if (eventBody.unique) {
     search = "unique#" + uniqueKey;
     const response = await checkUnique(tableName, eventPath, search);
-    console.log("doPost check unique");
-    console.log(response);
     if (response.Count > 0) {
       throw new Error(`Unique constraint violation: ${eventBody.unique}`);
     }
@@ -93,7 +91,6 @@ export const doPut = async function (tableName, eventPath, eventBody) {
 
   if (eventBody.unique) {
     search = "unique#" + uniqueKey;
-
     const uniqueResponse = await checkUnique(tableName, eventPath, search);
     if (uniqueResponse.Count > 0) {
       if (!uniqueResponse.Items[0].SK.endsWith(eventPath.substring(1).replaceAll("/", "#"))) {
@@ -116,15 +113,12 @@ export const doPut = async function (tableName, eventPath, eventBody) {
   }
 
   const putResponse = await put(tableName, eventPath, putBody);
-  console.log(putResponse);
   if (putResponse.Attributes.unique && putResponse.Attributes.unique !== body.unique) {
     const deleteSearch = "unique#" + getUniqueKey(putResponse.Attributes);
     let path = eventPath.split("/");
     path = path.slice(0, path.length - 1).join("/");
     const sk = deleteSearch + "#" + eventPath.substring(1).replaceAll("/", "#");
     const delResponse = await delByKeys(tableName, getPartitionKey(path), sk);
-    console.log("delete old unique");
-    console.log(delResponse);
   }
   body = {...putResponse.Attributes, ...body};
   delete body.PK;
@@ -160,8 +154,6 @@ const getByKeys = function (tableName, pk, sk) {
       ":sk": sk
     },
   };
-  console.log(params);
-
   return dynamo.send(
     new QueryCommand(params)
   );
@@ -219,9 +211,6 @@ const put = async function (tableName, path, body) {
 };
 
 const delByKeys = function (tableName, pk, sk) {
-  console.log("delByKeys");
-  console.log(pk);
-  console.log(sk);
   return dynamo.send(
     new DeleteCommand({
       TableName: tableName,
