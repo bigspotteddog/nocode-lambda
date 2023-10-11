@@ -116,7 +116,7 @@ export const doPut = async function (tableName, eventPath, eventBody) {
     const deleteSearch = "unique#" + getUniqueKey(putResponse.Attributes);
     let path = eventPath.split("/");
     path = path.slice(0, path.length - 1).join("/");
-    const sk = deleteSearch + "#" + eventPath.substring(1).replaceAll("/", "#");
+    const sk = deleteSearch;
     const delResponse = await delByKeys(tableName, getPartitionKey(path), sk);
   }
   body = {...putResponse.Attributes, ...body};
