@@ -69,9 +69,10 @@ export const doPost = async function (tableName, eventPath, eventBody) {
   };
 
   if (eventBody.unique) {
-    const sk = search + "#" + eventPath.substring(1).replaceAll("/", "#") + "#" + id;
+    const sk = search;
     const response = post(tableName, eventPath, {
-      SK: sk
+      SK: sk,
+      owner: eventPath.substring(1).replaceAll("/", "#") + "#" + id
     });
   }
 
@@ -157,7 +158,7 @@ const getByKeys = function (tableName, pk, sk) {
 
 const checkUnique = async function (tableName, path, unique) {
   const response = await getByKeys(
-    tableName, getPartitionKey(path), unique.split("#").slice(0, 3).join("#"));
+    tableName, getPartitionKey(path), unique.replaceAll("/", "#"));
   return response;
 };
 
