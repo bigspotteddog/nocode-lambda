@@ -157,8 +157,23 @@ const getByKeys = function (tableName, pk, sk) {
   );
 };
 
+const getUniqueByKeys = function (tableName, pk, sk) {
+  const params = {
+    TableName: tableName,
+    KeyConditionExpression:
+      "PK = :pk AND SK = :sk",
+    ExpressionAttributeValues: {
+      ":pk": pk,
+      ":sk": sk
+    },
+  };
+  return dynamo.send(
+    new QueryCommand(params)
+  );
+};
+
 const checkUnique = async function (tableName, path, unique) {
-  const response = await getByKeys(
+  const response = await getUniqueByKeys(
     tableName, getPartitionKey(path), unique.replaceAll("/", "#"));
   return response;
 };
